@@ -10,6 +10,7 @@ import sys
 from . import tools as t
 from os import PathLike
 from pathlib import Path
+from pysheds.grid import Grid
 from rasterio.features import rasterize, shapes
 from rasterio.warp import transform_bounds
 
@@ -542,7 +543,9 @@ class PyGeoFlood(object):
             function. See WhiteboxTools documentation for details.
         """
 
-        t.check_attributes([("Filled DEM", self.filled_path)], "calculate_d8_flow_direction")
+        t.check_attributes(
+            [("Filled DEM", self.filled_path)], "calculate_d8_flow_direction"
+        )
 
         # get file path for D8 flow direction
         self.d8_fdr_path = t.get_file_path(
@@ -1352,28 +1355,75 @@ class PyGeoFlood(object):
             f"Channel network vector written to {str(self.channel_network_path)}"
         )
 
+    # @t.time_it
+    # @t.use_config_defaults
+    # def calculate_hand(
+    #     self,
+    #     custom_path: str | PathLike = None,
+    #     **wbt_args,
+    # ):
+    #     """
+    #     Calculate Height Above Nearest Drainage (HAND). Returns a raster with
+    #     each cell's vertical elevation above its nearest stream cell, measured
+    #     along the downslope D8 flowpath from the cell. This is a wrapper for
+    #     the WhiteboxTools `elevation_above_stream` function.
+
+    #     Parameters
+    #     ---------
+    #     custom_path : `str`, `os.PathLike`, optional
+    #         Path to save HAND raster. If not provided, HAND raster will be
+    #         saved in project directory.
+    #     wbt_args : `dict`, optional
+    #         Additional arguments to pass to the WhiteboxTools
+    #         `elevation_above_stream` function. See WhiteboxTools documentation
+    #         for details.
+    #     """
+
+    #     required_rasters = [
+    #         ("Filled DEM", self.filled_path),
+    #         ("Channel network raster", self.channel_network_raster_path),
+    #     ]
+    #     t.check_attributes(required_rasters, "calculate_hand")
+
+    #     # get file path for HAND
+    #     self.hand_path = t.get_file_path(
+    #         custom_path=custom_path,
+    #         project_dir=self.project_dir,
+    #         dem_name=self.dem_path.stem,
+    #         suffix="HAND",
+    #     )
+
+    #     # get instance of WhiteboxTools
+    #     wbt = t.get_WhiteboxTools()
+
+    #     # calculate HAND
+    #     # use absolute paths to avoid errors
+    #     wbt.elevation_above_stream(
+    #         dem=self.filled_path.resolve(),
+    #         streams=self.channel_network_raster_path.resolve(),
+    #         output=self.hand_path.resolve(),
+    #         **wbt_args,
+    #     )
+
+    #     print(f"HAND raster written to {str(self.hand_path)}")
+
     @t.time_it
     @t.use_config_defaults
     def calculate_hand(
         self,
         custom_path: str | PathLike = None,
-        **wbt_args,
     ):
         """
         Calculate Height Above Nearest Drainage (HAND). Returns a raster with
         each cell's vertical elevation above its nearest stream cell, measured
-        along the downslope D8 flowpath from the cell. This is a wrapper for
-        the WhiteboxTools `elevation_above_stream` function.
+        along the downslope Dinf flowpath from the cell. This is a wrapper for
+        the pysheds `compute_hand` function.
 
         Parameters
         ---------
         custom_path : `str`, `os.PathLike`, optional
-            Path to save HAND raster. If not provided, basins raster will be
+            Path to save HAND raster. If not provided, HAND raster will be
             saved in project directory.
-        wbt_args : `dict`, optional
-            Additional arguments to pass to the WhiteboxTools
-            `elevation_above_stream` function. See WhiteboxTools documentation
-            for details.
         """
 
         required_rasters = [
@@ -1382,7 +1432,7 @@ class PyGeoFlood(object):
         ]
         t.check_attributes(required_rasters, "calculate_hand")
 
-        # get file path for HAND
+        # get file path for dinf HAND
         self.hand_path = t.get_file_path(
             custom_path=custom_path,
             project_dir=self.project_dir,
@@ -1390,19 +1440,21 @@ class PyGeoFlood(object):
             suffix="HAND",
         )
 
-        # get instance of WhiteboxTools
-        wbt = t.get_WhiteboxTools()
-
-        # calculate HAND
-        # use absolute paths to avoid errors
-        wbt.elevation_above_stream(
-            dem=self.filled_path.resolve(),
-            streams=self.channel_network_raster_path.resolve(),
-            output=self.hand_path.resolve(),
-            **wbt_args,
+        # calculate d-inf based HAND with pysheds
+        grid = Grid.from_raster(str(self.filled_path))
+        dem = grid.read_raster(str(self.filled_path))
+        channels = grid.read_raster(str(self.channel_network_raster_path))
+        fdir_dinf = grid.flowdir(dem, routing="dinf")
+        hand = grid.compute_hand(fdir_dinf, dem, channels == 1, routing="dinf")
+        grid.to_raster(
+            hand,
+            str(self.hand_path),
+            blockxsize=16,
+            blockysize=16,
+            dtype="float32",
         )
 
-        print(f"HAND raster written to {str(self.hand_path)}")
+        print(f"HAND (dinf flow paths) raster written to {str(self.hand_path)}")
 
     @t.time_it
     @t.use_config_defaults
