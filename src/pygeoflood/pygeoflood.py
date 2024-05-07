@@ -230,7 +230,9 @@ class PyGeoFlood(object):
     def to_paths(self, file_path):
         with open(file_path, "w") as file:
             for attr, value in vars(self).items():
-                if attr.endswith("_path") and value is not None:
+                if (
+                    attr.endswith("_path") or attr.endswith("_dir")
+                ) and value is not None:
                     # remove leading "_" if necessary
                     attr = attr.lstrip("_")
                     file.write(f'{attr}="{value}"\n')
@@ -542,7 +544,9 @@ class PyGeoFlood(object):
             function. See WhiteboxTools documentation for details.
         """
 
-        t.check_attributes([("Filled DEM", self.filled_path)], "calculate_d8_flow_direction")
+        t.check_attributes(
+            [("Filled DEM", self.filled_path)], "calculate_d8_flow_direction"
+        )
 
         # get file path for D8 flow direction
         self.d8_fdr_path = t.get_file_path(
