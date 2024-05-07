@@ -121,6 +121,7 @@ def time_it(func: callable) -> callable:
 
     return wrapper
 
+
 # sets parameters method will use. precedence:
 # 1. explicitly passed arguments
 # 2. configuration values
@@ -135,39 +136,44 @@ def use_config_defaults(func):
         explicitly_passed_args = set(kwargs.keys())
         params = sig.parameters
         arg_names = list(params.keys())[1:]  # Skip 'self'
-        
+
         # Determine which positional args were explicitly passed
         for i, arg in enumerate(args):
             if i < len(arg_names):
                 explicitly_passed_args.add(arg_names[i])
 
         # Start by applying the default values
-        final_params = {k: v.default for k, v in params.items() if v.default is not inspect.Parameter.empty}
+        final_params = {
+            k: v.default
+            for k, v in params.items()
+            if v.default is not inspect.Parameter.empty
+        }
 
         # Update with configuration values, if available
         method_name = func.__name__
-        if hasattr(self, 'config') and self.config:
+        if hasattr(self, "config") and self.config:
             config_options = self.config.get_method_options(method_name)
             final_params.update(config_options)
 
         # Override with explicitly passed arguments
         bound_args = sig.bind_partial(self, *args, **kwargs)
         bound_args.apply_defaults()
-        explicitly_passed_args_values = {k: bound_args.arguments[k] for k in explicitly_passed_args if k != 'self'}
+        explicitly_passed_args_values = {
+            k: bound_args.arguments[k]
+            for k in explicitly_passed_args
+            if k != "self"
+        }
         final_params.update(explicitly_passed_args_values)
 
         # Print the parameters being used
-        print(f'Running {method_name} with parameters:')
+        print(f"Running {method_name} with parameters:")
         for key, val in final_params.items():
-            print(f'    {key} = {val}')
+            print(f"    {key} = {val}")
 
         # Execute the function with the final parameters
         return func(self, **final_params)
+
     return wrapper
-
-
-
-
 
 
 def check_attributes(
