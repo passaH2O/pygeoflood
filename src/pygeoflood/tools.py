@@ -49,6 +49,11 @@ warnings.filterwarnings(
 )
 
 
+def wbt_callback(value):
+    if not "%" in value:
+        print(value)
+
+
 def path_property(name: str) -> property:
     """
     Create a path property with a storage name prefixed by an underscore.
@@ -478,8 +483,9 @@ def df_float64_to_float32(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_WhiteboxTools(
-    verbose: bool = False,
+    verbose: bool = True,
     compress: bool = True,
+    callback: callable = wbt_callback,
 ):
     """
     Get preconfigured WhiteboxTools instance.
@@ -490,6 +496,9 @@ def get_WhiteboxTools(
         Verbose mode. Default is False.
     compress : `bool`, optional
         Compress rasters. Default is True.
+    callback : `callable`, optional
+        Callback function. Default is wbt_callback, which prints all output
+        except for progress percentage updates.
 
     Returns
     -------
@@ -499,6 +508,7 @@ def get_WhiteboxTools(
     wbt = WhiteboxTools()
     wbt.set_verbose_mode(verbose)
     wbt.set_compress_rasters(compress)
+    wbt.set_default_callback(callback)
     return wbt
 
 
