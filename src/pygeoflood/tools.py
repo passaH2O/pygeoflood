@@ -486,6 +486,7 @@ def get_WhiteboxTools(
     verbose: bool = True,
     compress: bool = True,
     callback: callable = wbt_callback,
+    whitebox_exe_dir: str | PathLike = None,
 ):
     """
     Get preconfigured WhiteboxTools instance.
@@ -499,6 +500,10 @@ def get_WhiteboxTools(
     callback : `callable`, optional
         Callback function. Default is wbt_callback, which prints all output
         except for progress percentage updates.
+    whitebox_exe_dir : `str` | `os.PathLike`, optional
+        Path to WhiteboxTools executable directory. If None, the default
+        installation will be used. Use this if you compiled WhiteboxTools
+        from source, e.g. on an HPC. Default is None.
 
     Returns
     -------
@@ -506,6 +511,8 @@ def get_WhiteboxTools(
         WhiteboxTools instance.
     """
     wbt = WhiteboxTools()
+    if whitebox_exe_dir is not None:
+        wbt.set_whitebox_dir(whitebox_exe_dir)
     wbt.set_verbose_mode(verbose)
     wbt.set_compress_rasters(compress)
     wbt.set_default_callback(callback)
