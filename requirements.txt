@@ -1,6 +1,5 @@
 geopandas
 fiona
-inspect
 json
 numpy
 pandas
