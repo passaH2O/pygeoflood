@@ -15,6 +15,7 @@ from rasterio.warp import transform_bounds
 
 
 class PyGeoFlood(object):
+    """A class to implement the height above nearest drainage method"""
 
     @property
     def dem_path(self) -> str | PathLike:
@@ -148,7 +149,7 @@ class PyGeoFlood(object):
         Create a new pygeoflood model instance.
 
         Parameters
-        ---------
+        ----------
         dem_path : `str`, `os.PathLike`
             Path to DEM in GeoTIFF format.
         project_dir : `str`, `os.PathLike`, optional
@@ -338,7 +339,7 @@ class PyGeoFlood(object):
         Calculate slope of DEM.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save slope raster. If not provided, slope raster
             will be saved in project directory.
@@ -384,7 +385,7 @@ class PyGeoFlood(object):
         Calculate curvature of DEM.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save curvature raster. If not provided, curvature
             raster will be saved in project directory.
@@ -438,7 +439,7 @@ class PyGeoFlood(object):
         `fill_depressions` function.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Path to save filled DEM. If not provided, filled DEM will be saved
             in project directory.
@@ -485,7 +486,7 @@ class PyGeoFlood(object):
         `quinn_flow_accumulation` function.
 
         Parameters
-        ---------
+        ----------
         mfd_fac_path : `str`, `os.PathLike`, optional
             Path to save MFD flow accumulation raster. If not provided, MFD flow
             accumulation raster will be saved in project directory.
@@ -535,7 +536,7 @@ class PyGeoFlood(object):
         `d8_pointer` function.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Path to save D8 flow direction raster. If not provided, D8 flow
             direction raster will be saved in project directory.
@@ -595,7 +596,7 @@ class PyGeoFlood(object):
         cells are designated by 0.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Path to save outlets raster. If not provided, outlets raster will be
             saved in project directory.
@@ -645,7 +646,7 @@ class PyGeoFlood(object):
         Delineate basins. This is a wrapper for the WhiteboxTools `basins` function.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Path to save basins raster. If not provided, basins raster will be
             saved in project directory.
@@ -693,7 +694,7 @@ class PyGeoFlood(object):
         Define skeleton from flow and curvature.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save combined skeleton. If not provided, combined
             skeleton will be saved in project directory.
@@ -804,7 +805,7 @@ class PyGeoFlood(object):
         Calculate geodesic distance.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Path to save geodesic distance raster. If not provided, geodesic
             distance raster will be saved in project directory.
@@ -927,7 +928,7 @@ class PyGeoFlood(object):
         Define channel heads.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save channel heads shapefile. If not provided,
             channel heads shapefile will be saved in project directory.
@@ -995,7 +996,7 @@ class PyGeoFlood(object):
         Save flowline endpoints in a csv file.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save endpoints csv. If not provided, endpoints
             csv will be saved in project directory.
@@ -1036,7 +1037,7 @@ class PyGeoFlood(object):
         at a higher elevation than the NHD MR Flowlines.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save binary HAND raster. If not provided, binary HAND
             raster will be saved in project directory.
@@ -1091,7 +1092,7 @@ class PyGeoFlood(object):
         and set the `custom_flowline_raster_path` attribute directly.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save custom flowline raster. If not provided, custom
             flowline raster will be saved in project directory. The flowline
@@ -1179,7 +1180,7 @@ class PyGeoFlood(object):
         channel network.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save channel network raster. If not provided, channel
             network raster will be saved in project directory. The channel network
@@ -1370,7 +1371,7 @@ class PyGeoFlood(object):
         the WhiteboxTools `elevation_above_stream` function.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Path to save HAND raster. If not provided, basins raster will be
             saved in project directory.
@@ -1420,7 +1421,7 @@ class PyGeoFlood(object):
         Divide channel network into segments of a specified length.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save segmented channel network. If not provided,
             segmented channel network will be saved in project directory.
@@ -1474,14 +1475,15 @@ class PyGeoFlood(object):
         Delineate catchments for each segment of the channel network.
         The D8 flow direction raster and segmented channel network vector are
         required to run delineate_segment_catchments. This is a wrapper for
-        the WhiteboxTools `watershed` function.
+        the WhiteboxTools watershed function.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save segment catchments raster. If not provided,
             segment catchments will be saved in project directory.
-        **wbt_args : `dict`, optional
+        wbt_args : `dict`, optional
+            Additional arguments to pass to the WhiteboxTools 
         """
 
         required_files = [
@@ -1565,7 +1567,7 @@ class PyGeoFlood(object):
         stage-height relationship. The SRC are written to a csv file.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save synthetic rating curves. If not provided, SRC
             will be saved in project directory.
@@ -1697,7 +1699,7 @@ class PyGeoFlood(object):
         "feature_id" (or "COMID") and "streamflow".
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save flood stage interpolated from synthetic rating
             curves. If not provided, flood stage will be saved in project
@@ -1748,7 +1750,7 @@ class PyGeoFlood(object):
         Calculate flood inundation raster based on HAND and flood stage.
 
         Parameters
-        ---------
+        ----------
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save flood inundation raster. If not provided, flood
             inundation raster will be saved in project directory.
@@ -1856,7 +1858,7 @@ class PGF_Config:
         options will be ignored.
 
         Parameters
-        ---------
+        ----------
         dict : `dict`, optional
             Dictionary of options to update. Default is None.
         **new_options : `dict`, optional
