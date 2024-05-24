@@ -9,7 +9,7 @@ numba
 pathlib
 scipy
 shapely
-skimage
+scikit-image
 whitebox
 
 
