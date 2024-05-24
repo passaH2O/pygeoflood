@@ -23,19 +23,7 @@ from scipy.stats.mstats import gmean, mquantiles
 from shapely.geometry import LineString, Point, shape
 from shapely.ops import linemerge, snap, split
 from skimage.graph import route_through_array
-
-
-# whitebox tools is imported differently depending on whether
-# it was installed with pip or conda-forge
-try:
-    from whitebox.whitebox_tools import WhiteboxTools
-except ImportError:
-    try:
-        from whitebox_tools import WhiteboxTools
-    except ImportError:
-        raise ImportError(
-            "Could not import WhiteboxTools. Please make sure it is installed."
-        )
+from whitebox import WhiteboxTools
 
 warnings.filterwarnings(
     action="ignore",
@@ -346,14 +334,13 @@ def write_vector_lines(
         ]
 
         # Create LineString from projected coordinates
-        geometry.append(LineString(xy_coords))
-
-        lines.append(
-            {
-                "Type": dataset_name,
-                "HYDROID": keys[i],
-            }
-        )
+        if len(xy_coords) >= 2:
+            geometry.append(LineString(xy_coords))
+            lines.append({"Type": dataset_name, "HYDROID": keys[i]})
+        else:
+            print(
+                f"Skipping line with less than 2 coordinates. HYDROID: {keys[i]}"
+            )
 
     # Create a GeoDataFrame from the lines and set the CRS
     gdf = gpd.GeoDataFrame(lines, geometry=geometry, crs=crs)
@@ -511,6 +498,7 @@ def get_WhiteboxTools(
         WhiteboxTools instance.
     """
     wbt = WhiteboxTools()
+    # whitebox_exe_dir = "/path/to/whitebox/bin"
     if whitebox_exe_dir is not None:
         wbt.set_whitebox_dir(whitebox_exe_dir)
     wbt.set_verbose_mode(verbose)
