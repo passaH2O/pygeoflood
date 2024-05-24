@@ -4,7 +4,6 @@ numpy
 pandas
 rasterio
 psutil
-skfmm
 xarray
 numba
 pathlib
