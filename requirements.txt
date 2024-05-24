@@ -1,14 +1,11 @@
 geopandas
 fiona
-json
 numpy
 pandas
 rasterio
 psutil
 skfmm
 xarray
-functools
-importlib
 numba
 pathlib
 scipy
