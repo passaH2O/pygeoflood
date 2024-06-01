@@ -34,9 +34,7 @@ class PyGeoFlood(object):
                 if self.project_dir is None:
                     self.project_dir = Path(value).parent
             else:
-                raise TypeError(
-                    f"dem_path must be a string or os.PathLike object"
-                )
+                raise TypeError(f"dem_path must be a string or os.PathLike object")
 
     # make these attributes properties with getters and setters
     # t.path_property() ensures attribute is a pathlib.Path object
@@ -48,6 +46,7 @@ class PyGeoFlood(object):
     filled_path = t.path_property("filled_path")
     mfd_fac_path = t.path_property("mfd_fac_path")
     d8_fdr_path = t.path_property("d8_fdr_path")
+    dinf_fdr_path = t.path_property("dinf_fdr_path")
     basins_path = t.path_property("basins_path")
     outlets_path = t.path_property("outlets_path")
     flow_skeleton_path = t.path_property("flow_skeleton_path")
@@ -65,15 +64,11 @@ class PyGeoFlood(object):
     channel_network_raster_path = t.path_property("channel_network_raster_path")
     cost_function_channel_path = t.path_property("cost_function_channel_path")
     hand_path = t.path_property("hand_path")
-    segmented_channel_network_path = t.path_property(
-        "segmented_channel_network_path"
-    )
+    segmented_channel_network_path = t.path_property("segmented_channel_network_path")
     segmented_channel_network_raster_path = t.path_property(
         "segmented_channel_network_raster_path"
     )
-    segment_catchments_raster_path = t.path_property(
-        "segment_catchments_raster_path"
-    )
+    segment_catchments_raster_path = t.path_property("segment_catchments_raster_path")
     river_attributes_path = t.path_property("river_attributes_path")
     segment_catchments_path = t.path_property("segment_catchments_path")
     catchment_path = t.path_property("catchment_path")
@@ -102,9 +97,7 @@ class PyGeoFlood(object):
         elif value is None:
             self._config = None
         else:
-            raise ValueError(
-                "Config must be a PGF_Config instance, a dict, or None."
-            )
+            raise ValueError("Config must be a PGF_Config instance, a dict, or None.")
 
     def __init__(
         self,
@@ -116,6 +109,7 @@ class PyGeoFlood(object):
         filled_path=None,
         mfd_fac_path=None,
         d8_fdr_path=None,
+        dinf_fdr_path=None,
         basins_path=None,
         outlets_path=None,
         flow_skeleton_path=None,
@@ -172,6 +166,7 @@ class PyGeoFlood(object):
         self.filled_path = filled_path
         self.mfd_fac_path = mfd_fac_path
         self.d8_fdr_path = d8_fdr_path
+        self.dinf_fdr_path = dinf_fdr_path
         self.basins_path = basins_path
         self.outlets_path = outlets_path
         self.flow_skeleton_path = flow_skeleton_path
@@ -218,11 +213,7 @@ class PyGeoFlood(object):
             return f"{self.__class__.__name__}()"
         else:
             attrs = "\n    ".join(
-                (
-                    f'{k[1:]}="{v}",'
-                    if isinstance(v, (str, Path))
-                    else f"{k[1:]}={v!r},"
-                )
+                (f'{k[1:]}="{v}",' if isinstance(v, (str, Path)) else f"{k[1:]}={v!r},")
                 for k, v in self.__dict__.items()
                 if v is not None
             )
@@ -350,9 +341,7 @@ class PyGeoFlood(object):
         )
 
         # read filtered DEM
-        filtered_dem, filtered_dem_profile = t.read_raster(
-            self.filtered_dem_path
-        )
+        filtered_dem, filtered_dem_profile = t.read_raster(self.filtered_dem_path)
         # pixel scale must be the same in x and y directions
         # transform.a is in x direction, transform.e is in y direction
         pixel_scale = filtered_dem_profile["transform"].a
@@ -401,9 +390,7 @@ class PyGeoFlood(object):
         )
 
         # read filtered DEM
-        filtered_dem, filtered_dem_profile = t.read_raster(
-            self.filtered_dem_path
-        )
+        filtered_dem, filtered_dem_profile = t.read_raster(self.filtered_dem_path)
         pixel_scale = filtered_dem_profile["transform"].a
         curvature_array = t.compute_dem_curvature(
             filtered_dem,
@@ -520,9 +507,7 @@ class PyGeoFlood(object):
             **wbt_args,
         )
 
-        print(
-            f"MFD flow accumulation raster written to {str(self.mfd_fac_path)}"
-        )
+        print(f"MFD flow accumulation raster written to {str(self.mfd_fac_path)}")
 
     @t.time_it
     @t.use_config_defaults
@@ -722,9 +707,7 @@ class PyGeoFlood(object):
         print("Curvature standard deviation: ", curvature_std)
         print(f"Curvature Projection: {str(curvature_profile['crs'])}")
         thresholdCurvatureQQxx = 1.5
-        curvature_threshold = (
-            curvature_mean + thresholdCurvatureQQxx * curvature_std
-        )
+        curvature_threshold = curvature_mean + thresholdCurvatureQQxx * curvature_std
         curvature_skeleton = t.get_skeleton(curvature, curvature_threshold)
 
         # get skeleton from flow only
@@ -770,9 +753,7 @@ class PyGeoFlood(object):
                 profile=skeleton_profile,
                 file_path=self.curvature_skeleton_path,
             )
-            print(
-                f"Curvature skeleton written to {str(self.curvature_skeleton_path)}"
-            )
+            print(f"Curvature skeleton written to {str(self.curvature_skeleton_path)}")
 
         # write combined skeleton
         self.combined_skeleton_path = t.get_file_path(
@@ -786,9 +767,7 @@ class PyGeoFlood(object):
             profile=skeleton_profile,
             file_path=self.combined_skeleton_path,
         )
-        print(
-            f"Combined skeleton written to {str(self.combined_skeleton_path)}"
-        )
+        print(f"Combined skeleton written to {str(self.combined_skeleton_path)}")
 
     @t.time_it
     @t.use_config_defaults
@@ -868,9 +847,7 @@ class PyGeoFlood(object):
             weights_arrays, return_reciprocal=True
         )
         if local_cost_min is not None:
-            cost_function_geodesic[cost_function_geodesic < local_cost_min] = (
-                1.0
-            )
+            cost_function_geodesic[cost_function_geodesic < local_cost_min] = 1.0
         # print("1/cost min: ", np.nanmin(cost_function))
         # print("1/cost max: ", np.nanmax(cost_function))
         del curvature, combined_skeleton
@@ -892,9 +869,7 @@ class PyGeoFlood(object):
                 profile=filt_profile,
                 file_path=self.cost_function_geodesic_path,
             )
-            print(
-                f"Cost function written to {str(self.cost_function_geodesic_path)}"
-            )
+            print(f"Cost function written to {str(self.cost_function_geodesic_path)}")
 
         # get file path for geodesic distance
         self.geodesic_distance_path = t.get_file_path(
@@ -911,9 +886,7 @@ class PyGeoFlood(object):
             file_path=self.geodesic_distance_path,
         )
 
-        print(
-            f"Geodesic distance raster written to {str(self.geodesic_distance_path)}"
-        )
+        print(f"Geodesic distance raster written to {str(self.geodesic_distance_path)}")
 
     @t.time_it
     @t.use_config_defaults
@@ -952,9 +925,7 @@ class PyGeoFlood(object):
         # read combined skeleton and geodesic distance rasters
         combined_skeleton, _ = t.read_raster(self.combined_skeleton_path)
 
-        geodesic_distance, geo_profile = t.read_raster(
-            self.geodesic_distance_path
-        )
+        geodesic_distance, geo_profile = t.read_raster(self.geodesic_distance_path)
 
         # get channel heads
         ch_rows, ch_cols = t.get_channel_heads(
@@ -982,9 +953,7 @@ class PyGeoFlood(object):
             file_path=self.channel_heads_path,
         )
 
-        print(
-            f"Channel heads shapefile written to {str(self.channel_heads_path)}"
-        )
+        print(f"Channel heads shapefile written to {str(self.channel_heads_path)}")
 
     @t.time_it
     @t.use_config_defaults
@@ -1239,9 +1208,7 @@ class PyGeoFlood(object):
                 "extract_channel_network with use_custom_flowline=True",
             )
             # int16, 1 channel, 0 not
-            custom_flowline_raster, _ = t.read_raster(
-                self.custom_flowline_raster_path
-            )
+            custom_flowline_raster, _ = t.read_raster(self.custom_flowline_raster_path)
             weight_binary_hand = 0.75
             weight_custom_flowline = 1
 
@@ -1310,9 +1277,7 @@ class PyGeoFlood(object):
                 profile=fac_profile,
                 file_path=self.cost_function_channel_path,
             )
-            print(
-                f"Cost function written to {str(self.cost_function_channel_path)}"
-            )
+            print(f"Cost function written to {str(self.cost_function_channel_path)}")
         # threshold cost surface
         # get 2.5% quantile
         cost_quantile = np.quantile(cost[~np.isnan(cost)], 0.025)
@@ -1343,8 +1308,8 @@ class PyGeoFlood(object):
             f"Channel network raster written to {str(self.channel_network_raster_path)}"
         )
         # write vector dataset
-        self.channel_network_path = (
-            self.channel_network_raster_path.with_suffix(f".{vector_extension}")
+        self.channel_network_path = self.channel_network_raster_path.with_suffix(
+            f".{vector_extension}"
         )
         t.write_vector_lines(
             rowcol_list=stream_rowcol,
@@ -1353,9 +1318,77 @@ class PyGeoFlood(object):
             dataset_name="ChannelNetwork",
             file_path=self.channel_network_path,
         )
-        print(
-            f"Channel network vector written to {str(self.channel_network_path)}"
+        print(f"Channel network vector written to {str(self.channel_network_path)}")
+
+    @t.time_it
+    @t.use_config_defaults
+    def calculate_dinf_flow_direction(
+        self,
+        custom_path: str | PathLike = None,
+        **wbt_args,
+    ):
+        """
+        Calculate Dinf flow direction. This is a wrapper for the WhiteboxTools
+        `d_inf_pointer` function.
+
+        Parameters
+        ---------
+        custom_path : `str`, `os.PathLike`, optional
+            Path to save Dinf flow direction raster. If not provided, Dinf flow
+            direction raster will be saved in project directory.
+        wbt_args : `dict`, optional
+            Additional arguments to pass to the WhiteboxTools `d_inf_pointer`
+            function. See WhiteboxTools documentation for details.
+        """
+
+        t.check_attributes(
+            [("Filled DEM", self.filled_path)],
+            "calculate_dinf_flow_direction",
         )
+
+        # get file path for Dinf flow direction
+        self.dinf_fdr_path = t.get_file_path(
+            custom_path=custom_path,
+            project_dir=self.project_dir,
+            dem_name=self.dem_path.stem,
+            suffix="dinf_fdr",
+        )
+
+        # get instance of WhiteboxTools
+        wbt = t.get_WhiteboxTools()
+
+        # calculate D8 flow direction
+        # use absolute paths to avoid errors
+        wbt.d_inf_pointer(
+            dem=self.filled_path.resolve(),
+            output=self.dinf_fdr_path.resolve(),
+            **wbt_args,
+        )
+
+        # add back nodata cells from pit filled DEM
+        dem, dem_profile = t.read_raster(self.filled_path)
+        dem[dem_profile == dem_profile["nodata"]] = np.nan
+        dem_nan_mask = np.isnan(dem)
+        del dem
+        # read Dinf flow direction raster
+        dinf_fdr, dinf_profile = t.read_raster(self.dinf_fdr_path)
+
+        # convert angle from WBT degrees (0 N increasing clockwise)
+        # to TauDEM radians (0 E increasing counter-clockwise)
+        dinf_fdr = t.wbt_taudem_angle(dinf_fdr)
+
+        # set nodata cells to nodata value
+        dinf_fdr[dem_nan_mask] = -9999
+        dinf_profile.update(dtype="float32", nodata=-9999)
+        # write Dinf flow direction raster
+        t.write_raster(
+            raster=dinf_fdr,
+            profile=dinf_profile,
+            file_path=self.dinf_fdr_path,
+        )
+
+        print(f"Dinf flow direction raster written to {str(self.dinf_fdr_path)}")
+
 
     @t.time_it
     @t.use_config_defaults
@@ -1483,7 +1516,7 @@ class PyGeoFlood(object):
             Custom path to save segment catchments raster. If not provided,
             segment catchments will be saved in project directory.
         wbt_args : `dict`, optional
-            Additional arguments to pass to the WhiteboxTools 
+            Additional arguments to pass to the WhiteboxTools
         """
 
         required_files = [
@@ -1612,9 +1645,7 @@ class PyGeoFlood(object):
 
         t.check_attributes(required_files, "calculate_src")
 
-        segmented_channel_network = gpd.read_file(
-            self.segmented_channel_network_path
-        )
+        segmented_channel_network = gpd.read_file(self.segmented_channel_network_path)
 
         nwm_catchments = gpd.read_file(self.catchment_path)
         nwm_catchments = nwm_catchments.to_crs(segmented_channel_network.crs)
@@ -1623,9 +1654,7 @@ class PyGeoFlood(object):
             msg = "Segmented channel network crs does not match DEM crs"
             assert ds.crs == segmented_channel_network.crs, msg
 
-        segment_catchments, profile = t.read_raster(
-            self.segment_catchments_raster_path
-        )
+        segment_catchments, profile = t.read_raster(self.segment_catchments_raster_path)
 
         hand, _ = t.read_raster(self.hand_path)
 
@@ -1823,16 +1852,13 @@ class PyGeoFlood(object):
 pgf_methods = [
     method
     for method in dir(PyGeoFlood)
-    if inspect.isfunction(getattr(PyGeoFlood, method))
-    and not method.startswith("__")
+    if inspect.isfunction(getattr(PyGeoFlood, method)) and not method.startswith("__")
 ]
 pgf_params = {}
 for method in pgf_methods:
     pgf_params[method] = [
         param
-        for param in inspect.signature(
-            getattr(PyGeoFlood, method)
-        ).parameters.keys()
+        for param in inspect.signature(getattr(PyGeoFlood, method)).parameters.keys()
         if param != "self"
     ]
 

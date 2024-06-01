@@ -1431,6 +1431,54 @@ def split_network(
     return all_segments
 
 
+@jit(nopython=True, parallel=True)
+def wbt_taudem_angle(convert_angle, to_taudem=True):
+    """
+    Converts between azimuth degrees and radians, considering degrees start north (0°)
+    and increase clockwise (WBT convention) and and radians start east (0 radians)
+    and increase counter-clockwise (TauDEM convention).
+
+    https://www.whiteboxgeo.com/manual/wbt_book/available_tools/hydrological_analysis.html#dinfpointer
+    https://hydrology.usu.edu/taudem/taudem5/help53/DInfinityFlowDirections.html
+
+    Parameters
+    ----------
+    convert_angle : float or array-like
+        Angle(s) to convert, where 0° is north and values increase clockwise (WBT convention),
+        and 0 radians start east and values increase counter-clockwise (TauDEM convention).
+    to_taudem : bool, optional
+        Whether to convert from azimuth degrees to radians (True) or from radians to azimuth degrees (False).
+        The default is True.
+
+    Returns:
+    float or numpy.ndarray: Radian(s) equivalent, where 0 radians start east and
+    values increase counter-clockwise.
+    """
+
+    if to_taudem:
+        # Adjust the degrees to align with the radians circle, considering the different starting points and directions
+        adjusted_degrees = 90 - convert_angle
+
+        # Convert the adjusted degrees to radians, handling any decimal values
+        radians = np.mod(adjusted_degrees, 360) * np.pi / 180
+
+        return radians
+
+    else:
+        # Convert radians to degrees first
+        degrees = convert_angle * 180 / np.pi
+
+        # Adjust the degrees to align with the degrees circle, considering the different starting points and directions
+        adjusted_degrees = 90 - degrees
+
+        # Ensure the degrees are within the 0 to 360 range
+        adjusted_degrees = np.mod(adjusted_degrees, 360)
+
+        return adjusted_degrees
+    
+
+
+
 def segment_el_perc_dist(dem_path, geometry, percentage):
     """
     Return the elevation at a given percentage distance along a line.
