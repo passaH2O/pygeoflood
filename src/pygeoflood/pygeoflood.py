@@ -569,6 +569,76 @@ class PyGeoFlood(object):
 
         print(f"D8 flow direction raster written to {str(self.d8_fdr_path)}")
 
+
+    @t.time_it
+    @t.use_config_defaults
+    def calculate_dinf_flow_direction(
+        self,
+        custom_path: str | PathLike = None,
+        **wbt_args,
+    ):
+        """
+        Calculate Dinf flow direction. This is a wrapper for the WhiteboxTools
+        `d_inf_pointer` function.
+
+        Parameters
+        ---------
+        custom_path : `str`, `os.PathLike`, optional
+            Path to save Dinf flow direction raster. If not provided, Dinf flow
+            direction raster will be saved in project directory.
+        wbt_args : `dict`, optional
+            Additional arguments to pass to the WhiteboxTools `d_inf_pointer`
+            function. See WhiteboxTools documentation for details.
+        """
+
+        t.check_attributes(
+            [("Filled DEM", self.filled_path)],
+            "calculate_dinf_flow_direction",
+        )
+
+        # get file path for Dinf flow direction
+        self.dinf_fdr_path = t.get_file_path(
+            custom_path=custom_path,
+            project_dir=self.project_dir,
+            dem_name=self.dem_path.stem,
+            suffix="dinf_fdr",
+        )
+
+        # get instance of WhiteboxTools
+        wbt = t.get_WhiteboxTools()
+
+        # calculate D8 flow direction
+        # use absolute paths to avoid errors
+        wbt.d_inf_pointer(
+            dem=self.filled_path.resolve(),
+            output=self.dinf_fdr_path.resolve(),
+            **wbt_args,
+        )
+
+        # add back nodata cells from pit filled DEM
+        dem, dem_profile = t.read_raster(self.filled_path)
+        dem[dem_profile == dem_profile["nodata"]] = np.nan
+        dem_nan_mask = np.isnan(dem)
+        del dem
+        # read Dinf flow direction raster
+        dinf_fdr, dinf_profile = t.read_raster(self.dinf_fdr_path)
+
+        # convert angle from WBT degrees (0 N increasing clockwise)
+        # to TauDEM radians (0 E increasing counter-clockwise)
+        dinf_fdr = t.wbt_taudem_angle(dinf_fdr)
+
+        # set nodata cells to nodata value
+        dinf_fdr[dem_nan_mask] = -9999
+        dinf_profile.update(dtype="float32", nodata=-9999)
+        # write Dinf flow direction raster
+        t.write_raster(
+            raster=dinf_fdr,
+            profile=dinf_profile,
+            file_path=self.dinf_fdr_path,
+        )
+
+        print(f"Dinf flow direction raster written to {str(self.dinf_fdr_path)}")
+
     @t.time_it
     @t.use_config_defaults
     def find_outlets(
