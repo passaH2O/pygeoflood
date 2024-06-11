@@ -41,6 +41,7 @@ class PyGeoFlood(object):
     # make these attributes properties with getters and setters
     # t.path_property() ensures attribute is a pathlib.Path object
     project_dir = t.path_property("project_dir")
+    
     # below are set to None initially
     filtered_dem_path = t.path_property("filtered_dem_path")
     slope_path = t.path_property("slope_path")
