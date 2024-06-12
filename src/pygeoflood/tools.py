@@ -182,8 +182,9 @@ def check_attributes(
     """
 
     for name, path in attr_list:
-        if path is None:
-            raise ValueError(f"{name} must be created before running {method}")
+        if path is None or not Path(path).is_file():
+            raise ValueError(f"{name} invalid. {name} must be created before running {method}")
+            # raise ValueError(f"{name} must be created before running {method}")
 
 
 def read_raster(
