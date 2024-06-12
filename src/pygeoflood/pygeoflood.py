@@ -42,7 +42,7 @@ class PyGeoFlood(object):
     # t.path_property() ensures attribute is a pathlib.Path object
     project_dir = t.path_property("project_dir")
     
-    # below are set to None initially
+    # below paths are set to default values in __init__
     filtered_dem_path = t.path_property("filtered_dem_path")
     slope_path = t.path_property("slope_path")
     curvature_path = t.path_property("curvature_path")
@@ -83,6 +83,8 @@ class PyGeoFlood(object):
     flood_stage_path = t.path_property("flood_stage_path")
     fim_path = t.path_property("fim_path")
 
+
+
     @property
     def config(self):
         """
@@ -109,41 +111,8 @@ class PyGeoFlood(object):
 
     def __init__(
         self,
-        dem_path=None,
+        dem_path,
         project_dir=None,
-        filtered_dem_path=None,
-        slope_path=None,
-        curvature_path=None,
-        filled_path=None,
-        mfd_fac_path=None,
-        d8_fdr_path=None,
-        basins_path=None,
-        outlets_path=None,
-        flow_skeleton_path=None,
-        curvature_skeleton_path=None,
-        combined_skeleton_path=None,
-        cost_function_geodesic_path=None,
-        geodesic_distance_path=None,
-        channel_heads_path=None,
-        flowline_path=None,
-        endpoints_path=None,
-        binary_hand_path=None,
-        custom_flowline_path=None,
-        custom_flowline_raster_path=None,
-        channel_network_path=None,
-        channel_network_raster_path=None,
-        cost_function_channel_path=None,
-        hand_path=None,
-        segmented_channel_network_path=None,
-        segmented_channel_network_raster_path=None,
-        segment_catchments_raster_path=None,
-        river_attributes_path=None,
-        segment_catchments_path=None,
-        catchment_path=None,
-        src_path=None,
-        streamflow_forecast_path=None,
-        flood_stage_path=None,
-        fim_path=None,
         config=None,
     ):
         """
@@ -167,41 +136,46 @@ class PyGeoFlood(object):
             self.project_dir = None
         # automatically becomes a pathlib.Path object if not aleady
         self.dem_path = dem_path
-        self.filtered_dem_path = filtered_dem_path
-        self.slope_path = slope_path
-        self.curvature_path = curvature_path
-        self.filled_path = filled_path
-        self.mfd_fac_path = mfd_fac_path
-        self.d8_fdr_path = d8_fdr_path
-        self.basins_path = basins_path
-        self.outlets_path = outlets_path
-        self.flow_skeleton_path = flow_skeleton_path
-        self.curvature_skeleton_path = curvature_skeleton_path
-        self.combined_skeleton_path = combined_skeleton_path
-        self.cost_function_geodesic_path = cost_function_geodesic_path
-        self.geodesic_distance_path = geodesic_distance_path
-        self.channel_heads_path = channel_heads_path
-        self.flowline_path = flowline_path
-        self.endpoints_path = endpoints_path
-        self.binary_hand_path = binary_hand_path
-        self.custom_flowline_path = custom_flowline_path
-        self.custom_flowline_raster_path = custom_flowline_raster_path
-        self.channel_network_path = channel_network_path
-        self.channel_network_raster_path = channel_network_raster_path
-        self.cost_function_channel_path = cost_function_channel_path
-        self.hand_path = hand_path
-        self.segmented_channel_network_path = segmented_channel_network_path
-        self.segmented_channel_network_raster_path = (
-            segmented_channel_network_raster_path
-        )
-        self.segment_catchments_raster_path = segment_catchments_raster_path
-        self.river_attributes_path = river_attributes_path
-        self.segment_catchments_path = segment_catchments_path
-        self.catchment_path = catchment_path
-        self.src_path = src_path
-        self.streamflow_forecast_path = streamflow_forecast_path
-        self.flood_stage_path = flood_stage_path
-        self.fim_path = fim_path
+        
+        # Initialize default paths
+        default_prefix=f"{self.project_dir}/{self.dem_path.stem}"
+        
+        self.filtered_dem_path = f"{default_prefix}_filtered.tif"
+        self.slope_path = f"{default_prefix}_slope.tif"
+        self.curvature_path = f"{default_prefix}_curvature.tif"
+        self.filled_path = f"{default_prefix}_filled.tif"
+        self.mfd_fac_path = f"{default_prefix}_mfd_fac.tif"
+        self.d8_fdr_path = f"{default_prefix}_d8_fdr.tif"
+        self.basins_path = f"{default_prefix}_basins.tif"
+        self.outlets_path = f"{default_prefix}_outlets.tif"
+        self.flow_skeleton_path = f"{default_prefix}_flow_skeleton.tif"
+        self.curvature_skeleton_path = f"{default_prefix}_curvature_skeleton.tif"
+        self.combined_skeleton_path = f"{default_prefix}_combined_skeleton.tif"
+        self.cost_function_geodesic_path = f"{default_prefix}_cost_function_geodesic.tif"
+        self.geodesic_distance_path = f"{default_prefix}_geodesic_distance.tif"
+        self.channel_heads_path = f"{default_prefix}_channel_heads.shp"
+        self.flowline_path = f"{default_prefix}_flowline.shp"
+        self.endpoints_path = f"{default_prefix}_endpoints.csv"
+        self.binary_hand_path = f"{default_prefix}_binary_hand.tif"
+        self.channel_network_path = f"{default_prefix}_channel_network.shp"
+        self.channel_network_raster_path = f"{default_prefix}_channel_network_raster.tif"
+        self.cost_function_channel_path = f"{default_prefix}_cost_function_channel.tif"
+        self.hand_path = f"{default_prefix}_hand.tif"
+        self.segmented_channel_network_path = f"{default_prefix}_segmented_channel_network.shp"
+        self.segmented_channel_network_raster_path = f"{default_prefix}_segmented_channel_network_raster.tif"
+        self.segment_catchments_raster_path = f"{default_prefix}_segment_catchments_raster.tif"
+        self.river_attributes_path = f"{default_prefix}_river_attributes.csv"
+        self.segment_catchments_path = f"{default_prefix}_segment_catchments.tif"
+        self.catchment_path = f"{default_prefix}_cathcment.shp"
+        self.src_path = f"{default_prefix}_src.csv"
+        self.flood_stage_path = f"{default_prefix}_flood_stage.csv"
+        self.fim_path = f"{default_prefix}_fim.tif"
+
+
+        self.streamflow_forecast_path = f"{default_prefix}_streamflow_forecast"
+        self.custom_flowline_path = f"{default_prefix}_custom_flowline"
+        self.custom_flowline_raster_path = f"{default_prefix}_custom_flowline_raster"
+
         # check if 'config' is a dictionary and not an instance of PGF_Config
         if isinstance(config, dict):
             # create PGF_Config instance from dictionary
@@ -259,6 +233,7 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def apply_nonlinear_filter(
         self,
+        custom_dem: str | PathLike = None,
         custom_path: str | PathLike = None,
         method: str = "PeronaMalik2",
         smoothing_quantile: float = 0.9,
@@ -272,8 +247,11 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_dem : `str`, `os.PathLike`, optional
+            Custom file path for input DEM. If not provided, default DEM used. 
+            A custom_path is required when a custom_dem is provided.
         custom_path : `str`, `os.PathLike`, optional
-            Custom path to save filtered DEM. If not provided, filtered DEM
+            Custom file path to save filtered DEM. If not provided, filtered DEM
             will be saved in project directory.
         method : `str`, optional
             Filter method to apply to DEM. Options include:
@@ -293,13 +271,19 @@ class PyGeoFlood(object):
         sigma_squared : `float`, optional
             Variance of Gaussian filter. Default is 0.05.
         """
+        if custom_dem is None:
+            dem=self.dem_path
+        else:
+            dem=custom_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom DEM is provided.")
 
         t.check_attributes(
-            [("PyGeoFlood.dem_path", self.dem_path)], "apply_nonlinear_filter"
+            [("DEM", dem)], "apply_nonlinear_filter"
         )
 
         # read original DEM
-        dem, dem_profile = t.read_raster(self.dem_path)
+        dem, dem_profile = t.read_raster(dem)
         pixel_scale = dem_profile["transform"].a
         edgeThresholdValue = t.lambda_nonlinear_filter(
             dem, pixel_scale, smoothing_quantile
@@ -314,19 +298,17 @@ class PyGeoFlood(object):
             option=method,
         )
 
-        # get file path for filtered DEM
-        self.filtered_dem_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="filtered",
-        )
+        # set output file path for filtered DEM
+        if custom_path is None:
+            output_filtered_dem_path = self.filtered_dem_path
+        else:
+            output_filtered_dem_path = custom_path
 
         # write filtered DEM
         t.write_raster(
             raster=filtered_dem,
             profile=dem_profile,
-            file_path=self.filtered_dem_path,
+            file_path=output_filtered_dem_path,
         )
         print(f"Filtered DEM written to {str(self.filtered_dem_path)}")
 
@@ -334,6 +316,7 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def calculate_slope(
         self,
+        custom_filtered_dem: str | PathLike = None,
         custom_path: str | PathLike = None,
     ):
         """
@@ -341,37 +324,45 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_filtered_dem : `str`, `os.PathLike`, optional
+            Custom file path for input filtered dem. If not provided default 
+            filtered_dem is used. A custom_path is required when a 
+            custom_filtered_dem is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save slope raster. If not provided, slope raster
             will be saved in project directory.
         """
+        if custom_filtered_dem is None:
+            filtered_dem = self.filtered_dem_path
+        else:
+            filtered_dem = custom_filtered_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom filtered DEM is provided.")
 
         t.check_attributes(
-            [("Filtered DEM", self.filtered_dem_path)], "calculate_slope"
+            [("Filtered DEM", filtered_dem)], "calculate_slope"
         )
 
         # read filtered DEM
         filtered_dem, filtered_dem_profile = t.read_raster(
-            self.filtered_dem_path
+            filtered_dem
         )
         # pixel scale must be the same in x and y directions
         # transform.a is in x direction, transform.e is in y direction
         pixel_scale = filtered_dem_profile["transform"].a
         slope_array = t.compute_dem_slope(filtered_dem, pixel_scale)
 
-        # get file path for slope array
-        self.slope_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="slope",
-        )
+        # set output file path for slope array
+        if custom_path is None:
+            output_slope_path = self.slope_path
+        else:
+            output_slope_path = custom_path
 
         # write slope array
         t.write_raster(
             raster=slope_array,
             profile=filtered_dem_profile,
-            file_path=self.slope_path,
+            file_path=output_slope_path,
         )
         print(f"Slope raster written to {str(self.slope_path)}")
 
@@ -379,6 +370,7 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def calculate_curvature(
         self,
+        custom_filtered_dem: str | PathLike = None,
         custom_path: str | PathLike = None,
         method: str = "geometric",
     ):
@@ -387,6 +379,10 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_filtered_dem : `str`, `os.PathLike`, optional
+            Custom file path for input filtered dem. If not provided default 
+            filtered_dem is used. A custom_path is required when a 
+            custom_filtered_dem is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save curvature raster. If not provided, curvature
             raster will be saved in project directory.
@@ -396,14 +392,20 @@ class PyGeoFlood(object):
             - "laplacian": TODO: detailed description
             Default is "geometric".
         """
+        if custom_filtered_dem is None:
+            filtered_dem = self.filtered_dem_path
+        else:
+            filtered_dem = custom_filtered_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom filtered DEM is provided.")
 
         t.check_attributes(
-            [("Filtered DEM", self.filtered_dem_path)], "calculate_curvature"
+            [("Filtered DEM", filtered_dem)], "calculate_curvature"
         )
 
         # read filtered DEM
         filtered_dem, filtered_dem_profile = t.read_raster(
-            self.filtered_dem_path
+            filtered_dem
         )
         pixel_scale = filtered_dem_profile["transform"].a
         curvature_array = t.compute_dem_curvature(
@@ -412,19 +414,17 @@ class PyGeoFlood(object):
             method,
         )
 
-        # get file path for curvature array
-        self.curvature_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="curvature",
-        )
+        # set output file path for curvature array
+        if custom_path is None:
+            output_curvature_path = self.curvature_path
+        else:
+            output_curvature_path = custom_path
 
         # write curvature array
         t.write_raster(
             raster=curvature_array,
             profile=filtered_dem_profile,
-            file_path=self.curvature_path,
+            file_path=output_curvature_path,
         )
         print(f"Curvature raster written to {str(self.curvature_path)}")
 
@@ -432,6 +432,7 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def fill_depressions(
         self,
+        custom_filtered_dem: str | PathLike = None,
         custom_path: str | PathLike = None,
         **wbt_args,
     ):
@@ -441,6 +442,10 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_filtered_dem : `str`, `os.PathLike`, optional
+            Custom file path for input filtered dem. If not provided default 
+            filtered_dem is used. A custom_path is required when a 
+            custom_filtered_dem is provided.
         custom_path : `str`, `os.PathLike`, optional
             Path to save filled DEM. If not provided, filled DEM will be saved
             in project directory.
@@ -448,18 +453,22 @@ class PyGeoFlood(object):
             Additional arguments to pass to the WhiteboxTools `fill_depressions`
             function. See WhiteboxTools documentation for details.
         """
+        if custom_filtered_dem is None:
+            filtered_dem = self.filtered_dem_path
+        else:
+            filtered_dem = custom_filtered_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom filtered DEM is provided.")
 
         t.check_attributes(
-            [("Filtered DEM", self.filtered_dem_path)], "fill_depressions"
+            [("Filtered DEM", filtered_dem)], "fill_depressions"
         )
 
-        # get file path for filled DEM
-        self.filled_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="filled",
-        )
+        # set file path for filled DEM
+        if custom_path is None:
+            output_filled_path = self.filled_path
+        else:
+            output_filled_path = custom_path
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -467,8 +476,8 @@ class PyGeoFlood(object):
         # fill DEM depressions
         # use absolute paths to avoid errors
         wbt.fill_depressions(
-            dem=self.filtered_dem_path.resolve(),
-            output=self.filled_path.resolve(),
+            dem=Path(filtered_dem).resolve(),
+            output=Path(output_filled_path).resolve(),
             fix_flats=True,
             **wbt_args,
         )
@@ -479,6 +488,7 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def calculate_mfd_flow_accumulation(
         self,
+        custom_filled_dem: str | PathLike = None,
         custom_path: str | PathLike = None,
         **wbt_args,
     ):
@@ -488,26 +498,34 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
-        mfd_fac_path : `str`, `os.PathLike`, optional
+        custom_filled_dem : `str`, `os.PathLike`, optional
+            Custom file path for input filled dem. If not provided default 
+            filled_dem is used. A custom_path is required when a 
+            custom_filled_dem is provided.
+        custom_path : `str`, `os.PathLike`, optional
             Path to save MFD flow accumulation raster. If not provided, MFD flow
             accumulation raster will be saved in project directory.
         wbt_args : `dict`, optional
             Additional arguments to pass to the WhiteboxTools `quinn_flow_accumulation`
             function. See WhiteboxTools documentation for details.
         """
+        if custom_filled_dem is None:
+            filled_dem = self.filled_path
+        else:
+            filled_dem = custom_filled_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom filled DEM is provided.")
 
         t.check_attributes(
-            [("Filled DEM", self.filled_path)],
+            [("Filled DEM", filled_dem)],
             "calculate_mfd_flow_accumulation",
         )
 
-        # get file path for MFD flow accumulation
-        self.mfd_fac_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="mfd_fac",
-        )
+        # set file path for filled DEM
+        if custom_path is None:
+            output_mfd_fac_path = self.mfd_fac_path
+        else:
+            output_mfd_fac_path = custom_path
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -515,8 +533,8 @@ class PyGeoFlood(object):
         # calculate MFD flow accumulation
         # use absolute paths to avoid errors
         wbt.quinn_flow_accumulation(
-            dem=self.filled_path.resolve(),
-            output=self.mfd_fac_path.resolve(),
+            dem=Path(filled_dem).resolve(),
+            output=Path(output_mfd_fac_path).resolve(),
             out_type="cells",
             **wbt_args,
         )
@@ -529,6 +547,8 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def calculate_d8_flow_direction(
         self,
+        custom_filled_dem: str | PathLike = None,
+        custom_filtered_dem: str | PathLike = None,
         custom_path: str | PathLike = None,
         **wbt_args,
     ):
@@ -538,6 +558,14 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_filled_dem : `str`, `os.PathLike`, optional
+            Custom file path for input filled dem. If not provided default 
+            filled_dem is used. A custom_path is required when a 
+            custom_filtered_dem is provided.
+        custom_filtered_dem : `str`, `os.PathLike`, optional
+            Custom file path for input filtered dem. If not provided default 
+            filtered_dem is used. A custom_path is required when a 
+            custom_filtered_dem is provided.
         custom_path : `str`, `os.PathLike`, optional
             Path to save D8 flow direction raster. If not provided, D8 flow
             direction raster will be saved in project directory.
@@ -545,18 +573,33 @@ class PyGeoFlood(object):
             Additional arguments to pass to the WhiteboxTools `d8_pointer`
             function. See WhiteboxTools documentation for details.
         """
+        if custom_filled_dem is None:
+            filled_dem = self.filled_path
+        else:
+            filled_dem = custom_filled_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom filled DEM is provided.")
+
+        if custom_filtered_dem is None:
+            filtered_dem = self.filtered_dem_path
+        else:
+            filtered_dem = custom_filtered_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom filtered DEM is provided.")
 
         t.check_attributes(
-            [("Filled DEM", self.filled_path)], "calculate_d8_flow_direction"
+            [("Filled DEM", filled_dem)], "calculate_d8_flow_direction"
+        )
+        t.check_attributes(
+            [("Filtered DEM", filtered_dem)], "calculate_d8_flow_direction"
         )
 
-        # get file path for D8 flow direction
-        self.d8_fdr_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="d8_fdr",
-        )
+        # set file path for filled DEM
+        if custom_path is None:
+            output_d8_fdr_path = self.d8_fdr_path
+        else:
+            output_d8_fdr_path = custom_path
+
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -564,23 +607,23 @@ class PyGeoFlood(object):
         # calculate D8 flow direction
         # use absolute paths to avoid errors
         wbt.d8_pointer(
-            dem=self.filled_path.resolve(),
-            output=self.d8_fdr_path.resolve(),
+            dem=Path(filled_dem).resolve(),
+            output=Path(output_d8_fdr_path).resolve(),
             **wbt_args,
         )
 
         # for some reason WBT assigns D8 values to nodata cells
         # add back nodata cells from filtered DEM
-        filtered_dem, filtered_profile = t.read_raster(self.filtered_dem_path)
+        filtered_dem, filtered_profile = t.read_raster(filtered_dem)
         filtered_dem[filtered_dem == filtered_profile["nodata"]] = np.nan
         # read D8 flow direction raster
-        d8_fdr, d8_profile = t.read_raster(self.d8_fdr_path)
+        d8_fdr, d8_profile = t.read_raster(output_d8_fdr_path)
         d8_fdr[np.isnan(filtered_dem)] = d8_profile["nodata"]
         # write D8 flow direction raster
         t.write_raster(
             raster=d8_fdr,
             profile=d8_profile,
-            file_path=self.d8_fdr_path,
+            file_path=output_d8_fdr_path,
         )
 
         print(f"D8 flow direction raster written to {str(self.d8_fdr_path)}")
@@ -589,6 +632,7 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def find_outlets(
         self,
+        custom_d8_fdr: str | PathLike = None,
         custom_path: str | PathLike = None,
     ):
         """
@@ -598,18 +642,28 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_d8_fdr : `str`, `os.PathLike`, optional
+            Custom file path for input d8 flow direction. If not provided default 
+            d8_fdr is used. A custom_path is required when a 
+            custom_d8_fdr is provided.
         custom_path : `str`, `os.PathLike`, optional
             Path to save outlets raster. If not provided, outlets raster will be
             saved in project directory.
         """
+        if custom_d8_fdr is None:
+            d8_fdr = self.d8_fdr_path
+        else:
+            d8_fdr = custom_d8_fdr
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom d8_fdr is provided.")
 
         t.check_attributes(
-            [("D8 flow direction raster", self.d8_fdr_path)],
+            [("D8 flow direction raster", d8_fdr)],
             "find_outlets",
         )
 
         # read D8 flow direction raster, outlets designated by WBT as 0
-        outlets, profile = t.read_raster(self.d8_fdr_path)
+        outlets, profile = t.read_raster(d8_fdr)
         nan_mask = outlets == profile["nodata"]
         # get outlets as 1, all else as 0
         # make all cells 1 that are not outlets
@@ -619,19 +673,19 @@ class PyGeoFlood(object):
         # reset nodata cells, which were set to 0 above
         outlets[nan_mask] = profile["nodata"]
 
-        # get file path for outlets raster
-        self.outlets_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="outlets",
-        )
+        # set file path for filled DEM
+        if custom_path is None:
+            output_outlets_path = self.outlets_path
+        else:
+            output_outlets_path = custom_path
+
+
 
         # write outlets raster
         t.write_raster(
             raster=outlets,
             profile=profile,
-            file_path=self.outlets_path,
+            file_path=output_outlets_path,
         )
 
         print(f"Outlets raster written to {str(self.outlets_path)}")
