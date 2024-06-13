@@ -1034,7 +1034,7 @@ def get_channel_heads(
     return ch_rows, ch_cols
 
 
-@jit(nopython=True, parallel=True)
+@jit(nopython=True)
 def jit_channel_heads(
     labeled,
     skeleton_gridded_array,
@@ -1049,8 +1049,8 @@ def jit_channel_heads(
     channel_heads = np.zeros((max_channel_heads, 2), dtype=np.int32)
     ch_count = 0
 
-    for i in prange(nrows):
-        for j in prange(ncols):
+    for i in range(nrows):
+        for j in range(ncols):
             if (
                 labeled[i, j] != 0
                 and skeleton_gridded_array[i, j] >= count_threshold
