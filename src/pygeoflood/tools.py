@@ -275,7 +275,6 @@ def write_vector_points(
         xy(transform, rows[i], cols[i], offset="center")
         for i in range(len(rows))
     ]
-
     # Unpack the projected coordinates to easting and northing for UTM
     easting, northing = zip(*xy_proj)
 
@@ -1029,6 +1028,7 @@ def get_channel_heads(
         channel_head_median_dist,
         max_channel_heads,
     )
+    print(f'number of channel heads: {len(channel_heads)}')
     channel_heads = np.transpose(channel_heads)
     ch_rows = channel_heads[0]
     ch_cols = channel_heads[1]
