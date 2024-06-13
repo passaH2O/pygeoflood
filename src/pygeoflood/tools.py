@@ -154,9 +154,12 @@ def use_config_defaults(func):
         explicitly_passed_args_values = {
             k: bound_args.arguments[k]
             for k in explicitly_passed_args
-            if k != "self"
+            if k != "self" and k in bound_args.arguments
         }
         final_params.update(explicitly_passed_args_values)
+
+        # Combine final_params with remaining kwargs (probably wbt_kwargs)
+        final_params.update(kwargs)
 
         # Print the parameters being used
         print(f"Running {method_name} with parameters:")
