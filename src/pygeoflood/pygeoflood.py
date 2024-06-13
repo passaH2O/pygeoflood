@@ -465,10 +465,12 @@ class PyGeoFlood(object):
 
         # fill DEM depressions
         # use absolute paths to avoid errors
+        # Set default value for fix_flats if not provided
+        if "fix_flats" not in wbt_args:
+            wbt_args["fix_flats"] = True
         wbt.fill_depressions(
             dem=self.filtered_dem_path.resolve(),
             output=self.filled_path.resolve(),
-            fix_flats=True,
             **wbt_args,
         )
 
@@ -513,10 +515,11 @@ class PyGeoFlood(object):
 
         # calculate MFD flow accumulation
         # use absolute paths to avoid errors
+        if "out_type" not in wbt_args:
+            wbt_args["out_type"] = "cells"
         wbt.quinn_flow_accumulation(
             dem=self.filled_path.resolve(),
             output=self.mfd_fac_path.resolve(),
-            out_type="cells",
             **wbt_args,
         )
 
@@ -1261,7 +1264,9 @@ class PyGeoFlood(object):
             print(
                 f"Channel network vector written to {str(self.channel_network_path)}"
             )
-            print("Note: No channel network extraction performed. The NHD MR flowline was used.")
+            print(
+                "Note: No channel network extraction performed. The NHD MR flowline was used."
+            )
 
         else:
             print("Retracing flowline...")
