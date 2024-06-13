@@ -185,8 +185,9 @@ def check_attributes(
     """
 
     for name, path in attr_list:
-        if path is None:
-            raise ValueError(f"{name} must be created before running {method}")
+        if path is None or not Path(path).is_file():
+            raise ValueError(f"{name} invalid. {name} must be created before running {method}")
+            # raise ValueError(f"{name} must be created before running {method}")
 
 
 def read_raster(
@@ -277,7 +278,6 @@ def write_vector_points(
         xy(transform, rows[i], cols[i], offset="center")
         for i in range(len(rows))
     ]
-
     # Unpack the projected coordinates to easting and northing for UTM
     easting, northing = zip(*xy_proj)
 
@@ -1031,6 +1031,7 @@ def get_channel_heads(
         channel_head_median_dist,
         max_channel_heads,
     )
+    print(f'number of channel heads: {len(channel_heads)}')
     channel_heads = np.transpose(channel_heads)
     ch_rows = channel_heads[0]
     ch_cols = channel_heads[1]
