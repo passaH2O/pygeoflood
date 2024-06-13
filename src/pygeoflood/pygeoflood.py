@@ -160,21 +160,21 @@ class PyGeoFlood(object):
         self.channel_network_path = f"{default_prefix}_channel_network.shp"
         self.channel_network_raster_path = f"{default_prefix}_channel_network_raster.tif"
         self.cost_function_channel_path = f"{default_prefix}_cost_function_channel.tif"
-        self.hand_path = f"{default_prefix}_hand.tif"
+        self.hand_path = f"{default_prefix}_HAND.tif"
         self.segmented_channel_network_path = f"{default_prefix}_segmented_channel_network.shp"
         self.segmented_channel_network_raster_path = f"{default_prefix}_segmented_channel_network_raster.tif"
-        self.segment_catchments_raster_path = f"{default_prefix}_segment_catchments_raster.tif"
+        self.segment_catchments_raster_path = f"{default_prefix}_segment_catchments.tif"
         self.river_attributes_path = f"{default_prefix}_river_attributes.csv"
         self.segment_catchments_path = f"{default_prefix}_segment_catchments.tif"
         self.catchment_path = f"{default_prefix}_cathcment.shp"
         self.src_path = f"{default_prefix}_src.csv"
         self.flood_stage_path = f"{default_prefix}_flood_stage.csv"
         self.fim_path = f"{default_prefix}_fim.tif"
-
-
+        self.custom_flowline_path = f"{default_prefix}_custom_flowline.shp"
+        self.custom_flowline_raster_path = f"{default_prefix}_custom_flowline_raster.tif"
         self.streamflow_forecast_path = f"{default_prefix}_streamflow_forecast"
-        self.custom_flowline_path = f"{default_prefix}_custom_flowline"
-        self.custom_flowline_raster_path = f"{default_prefix}_custom_flowline_raster"
+
+
 
         # check if 'config' is a dictionary and not an instance of PGF_Config
         if isinstance(config, dict):
@@ -302,7 +302,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_filtered_dem_path = self.filtered_dem_path
         else:
-            output_filtered_dem_path = custom_path
+            output_filtered_dem_path = f"{custom_path}.tif"
 
         # write filtered DEM
         t.write_raster(
@@ -356,7 +356,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_slope_path = self.slope_path
         else:
-            output_slope_path = custom_path
+            output_slope_path = f"{custom_path}.tif"
 
         # write slope array
         t.write_raster(
@@ -418,7 +418,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_curvature_path = self.curvature_path
         else:
-            output_curvature_path = custom_path
+            output_curvature_path = f"{custom_path}.tif"
 
         # write curvature array
         t.write_raster(
@@ -468,7 +468,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_filled_path = self.filled_path
         else:
-            output_filled_path = custom_path
+            output_filled_path = f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -525,7 +525,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_mfd_fac_path = self.mfd_fac_path
         else:
-            output_mfd_fac_path = custom_path
+            output_mfd_fac_path = f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -599,7 +599,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_d8_fdr_path = self.d8_fdr_path
         else:
-            output_d8_fdr_path = custom_path
+            output_d8_fdr_path = f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -677,7 +677,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_outlets_path = self.outlets_path
         else:
-            output_outlets_path = custom_path
+            output_outlets_path = f"{custom_path}.tif"
 
 
 
@@ -730,7 +730,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_basins_path = self.basins_path
         else:
-            output_basins_path = custom_path
+            output_basins_path = f"{custom_path}.tif"
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
 
@@ -853,7 +853,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_combined_skeleton_path = self.combined_skeleton_path
         else:
-            output_combined_skeleton_path = custom_path
+            output_combined_skeleton_path = f"{custom_path}.tif"
 
         t.write_raster(
             raster=combined_skeleton,
@@ -1029,7 +1029,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_geodesic_distance_path = self.geodesic_distance_path
         else:
-            output_geodesic_distance_path = custom_path
+            output_geodesic_distance_path = f"{custom_path}.tif"
         # write geodesic distance
         t.write_raster(
             raster=geodesic_distance,
@@ -1116,7 +1116,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_channel_heads_path = self.channel_heads_path    
         else:
-            output_channel_heads_path = custom_path
+            output_channel_heads_path = f"{custom_path}.{vector_extension}"
         # write channel heads points shapefile
         t.write_vector_points(
             rows=ch_rows,
@@ -1153,7 +1153,9 @@ class PyGeoFlood(object):
             flowline = self.flowline_path
         else:
             flowline = custom_flowline
-        
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom_flowline d8_fdr is provided.")
+
         t.check_attributes(
             [("PyGeoFlood.flowline_path", flowline)],
             "find_endpoints",
@@ -1166,7 +1168,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_endpoints_path = self.endpoints_path    
         else:
-            output_endpoints_path = custom_path
+            output_endpoints_path = f"{custom_path}.csv"
 
         # write endpoints csv
         endpoints.to_csv(output_endpoints_path, index=False)
@@ -1177,6 +1179,8 @@ class PyGeoFlood(object):
     @t.use_config_defaults
     def calculate_binary_hand(
         self,
+        custom_dem: str | PathLike = None,
+        custom_flowline: str | PathLike = None,
         custom_path: str | PathLike = None,
     ):
         """
@@ -1187,47 +1191,68 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_dem : `str`, `os.PathLike`, optional
+            Custom file path to input dem. If not provided default 
+            dem is used. A custom_path is required when a custom_dem is provided.
+        custom_flowline : `str`, `os.PathLike`, optional
+            Custom file path to input flowlines. If not provided default 
+            flowline is used. A custom_path is required when a custom_flowline is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save binary HAND raster. If not provided, binary HAND
             raster will be saved in project directory.
         """
+        if custom_flowline is None:
+            flowline = self.flowline_path
+        else:
+            flowline = custom_flowline
+        if custom_dem is None:
+            dem = self.dem_path
+        else:
+            dem = custom_dem
+
+
+        for input in [custom_flowline,
+                      custom_dem]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
+
+
 
         required_files = [
-            ("DEM", self.dem_path),
-            ("PyGeoFlood.flowline_path", self.flowline_path),
+            ("DEM", dem),
+            ("PyGeoFlood.flowline_path", flowline),
         ]
 
         t.check_attributes(required_files, "calculate_binary_hand")
 
-        flowline = gpd.read_file(self.flowline_path)
-        dem, dem_profile = t.read_raster(self.dem_path)
+        flowline = gpd.read_file(flowline)
+        dem, dem_profile = t.read_raster(dem)
         binary_hand = t.get_binary_hand(flowline, dem, dem_profile)
         out_profile = dem_profile.copy()
         out_profile.update(dtype="int16", nodata=-32768)
         binary_hand[dem == dem_profile["nodata"]] = out_profile["nodata"]
         binary_hand[np.isnan(dem)] = out_profile["nodata"]
 
-        # get file path for binary hand
-        self.binary_hand_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="binary_hand",
-        )
+        # set file path for binary hand
+        if custom_path is None:
+            output_binary_hand_path = self.binary_hand_path    
+        else:
+            output_binary_hand_path = f"{custom_path}.tif"
 
         # write binary hand
         t.write_raster(
             raster=binary_hand,
             profile=out_profile,
-            file_path=self.binary_hand_path,
+            file_path=output_binary_hand_path,
         )
 
-        print(f"Binary HAND raster written to {str(self.binary_hand_path)}")
+        print(f"Binary HAND raster written to {output_binary_hand_path}")
 
     @t.time_it
     @t.use_config_defaults
     def rasterize_custom_flowline(
         self,
+        custom_flowline: str | PathLike = None,
         custom_path: str | PathLike = None,
         layer: str | int = 0,
     ):
@@ -1238,20 +1263,31 @@ class PyGeoFlood(object):
         The flowline is buffered by 5 units and cropped to the extent of the DEM.
         The crs of the flowline will be reprojected to the crs of the DEM.
         Note: if you already have a custom flowline raster, you can skip this step
-        and set the `custom_flowline_raster_path` attribute directly.
+        and set the `custom_flowline_raster_path` attribute directly. Used to set the 
+        path properties self.custom_flowline_path and self.custom_flowline_raster_path 
 
         Parameters
         ----------
+        custom_flowline : `str`, `os.PathLike`, optional
+            Custom file path to input flowlines. If not provided default 
+            custom_flowline is used. A custom_path is required when a custom_flowline is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save custom flowline raster. If not provided, custom
             flowline raster will be saved in project directory. The flowline
-            raster has data type int16 with 1=channel and 0=non-channel.
+            raster has data type int16 with 1=channel and 0=non-channel. Default path is project
+            directory with suffix _custom_flowline.shp and _custom_flowline.tif
         layer : `str` or `int`, optional
             Layer name or number in flowline vector file. Default is 0.
         """
-
+        if custom_flowline is None:
+            flowline = self.custom_flowline_path
+        else:
+            flowline = custom_flowline
+            if custom_path is None:
+                raise ValueError(f"A custom path is required when a custom_flowline is provided.")
+            
         t.check_attributes(
-            [("PyGeoFlood.custom_flowline_path", self.custom_flowline_path)],
+            [("PyGeoFlood.custom_flowline_path", flowline)],
             "rasterize_custom_flowline",
         )
 
@@ -1261,7 +1297,7 @@ class PyGeoFlood(object):
             dem_profile = ds.profile
 
         # transform bounding box to crs of flowline
-        with fiona.open(self.custom_flowline_path, layer=layer) as ds:
+        with fiona.open(flowline, layer=layer) as ds:
             out_crs = ds.crs
 
         bbox = transform_bounds(dem_profile["crs"], out_crs, *bbox)
@@ -1269,7 +1305,7 @@ class PyGeoFlood(object):
         # read custom flowline within bounding box and specified layer
         # layer default is 0, which will read the first (and likely only) layer
         custom_flowline = gpd.read_file(
-            self.custom_flowline_path,
+            flowline,
             bbox=bbox,
             layer=layer,
         )
@@ -1281,13 +1317,11 @@ class PyGeoFlood(object):
             buffer=5,
         )
 
-        # get file path for custom flowline raster
-        self.custom_flowline_raster_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="custom_flowline",
-        )
+        # set custom_flowline_raster_path
+        if custom_path is None:
+            output_custom_flowline_raster_path   = self.custom_flowline_raster_path    
+        else:
+            output_custom_flowline_raster_path = f"{custom_path}.tif"
 
         # write custom flowline raster
         out_profile = dem_profile.copy()
@@ -1295,17 +1329,22 @@ class PyGeoFlood(object):
         t.write_raster(
             raster=custom_flowline_raster,
             profile=out_profile,
-            file_path=self.custom_flowline_raster_path,
+            file_path=output_custom_flowline_raster_path,
         )
 
         print(
-            f"Custom flowline raster written to {str(self.custom_flowline_raster_path)}"
+            f"Custom flowline raster written to {output_custom_flowline_raster_path}"
         )
 
     @t.time_it
     @t.use_config_defaults
     def extract_channel_network(
         self,
+        custom_flowline: str | PathLike = None,
+        custom_curvature: str | PathLike = None,
+        custom_mfd_fac: str | PathLike = None,
+        custom_endpoints: str | PathLike = None,
+        custom_binary_hand: str | PathLike = None,
         custom_path: str | PathLike = None,
         retrace_flowline: bool = True,
         vector_extension: str = "shp",
@@ -1331,6 +1370,22 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_flowline : `str`, `os.PathLike`, optional
+            Custom file path to input flowlines. If not provided default 
+            flowline is used. Only used if retrace_flowline is False.
+            A custom_path is required when a custom_flowline is provided.
+        custom_curvature : `str`, `os.PathLike`, optional
+            Custom file path to input curvature. If not provided default 
+            curvature is used. A custom_path is required when a custom_curvature is provided.
+        custom_mfd_fac : `str`, `os.PathLike`, optional
+            Custom file path to input mfd_fac. If not provided default 
+            mfd_fac is used. A custom_path is required when a custom_mfd_fac is provided.
+        custom_endpoints : `str`, `os.PathLike`, optional
+            Custom file path to input endpoints. If not provided default 
+            endpoints is used. A custom_path is required when a custom_endpoints is provided.
+        custom_binary_hand : `str`, `os.PathLike`, optional
+            Custom file path to input binary_hand. If not provided default 
+            bindary_hand is used. A custom_path is required when a custom_binary_hand is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save channel network raster. If not provided, channel
             network raster will be saved in project directory. The channel network
@@ -1348,6 +1403,9 @@ class PyGeoFlood(object):
             Whether to write cost function raster to file. Default is False.
         use_custom_flowline : `bool`, optional
             Whether to use custom flowline raster in cost function. Default is False.
+            Does not automatically use custom_flowline shapefile input, 
+            The custom_flowline raster should be set by running 
+            `rasterize_custom_flowline` method first.
         no_flowline : `bool`, optional
             Whether to use the NHD MR flowline information (binary HAND raster)
             in the cost function. Default is False, so binary HAND raster will
@@ -1361,26 +1419,32 @@ class PyGeoFlood(object):
         custom_weight_custom_flowline : `float`, optional
             Custom weight for custom flowline in cost function. Default is None.
         """
-
         if not retrace_flowline:
             print("Using existing NHD MR flowline...")
 
-            required_files = [("PyGeoFlood.flowline_path", self.flowline_path)]
+            if custom_flowline is None:
+                flowline = self.flowline_path
+            else:
+                flowline = custom_flowline
+                if custom_path is None:
+                    raise ValueError(f"A custom path is required when a custom_flowline is provided.")
+
+            required_files = [("PyGeoFlood.flowline_path", flowline)]
             t.check_attributes(required_files, "extract_channel_network")
 
-            ### write channel network raster and shapefile
-            # raster
-            self.channel_network_raster_path = t.get_file_path(
-                custom_path=custom_path,
-                project_dir=self.project_dir,
-                dem_name=self.dem_path.stem,
-                suffix="channel_network",
-            )
+            # set channel network raster and vectorpath
+            if custom_path is None:
+                output_channel_network_raster_path = self.channel_network_raster_path
+                output_channel_network_vector_path = self.channel_network_path
+            else:
+                output_channel_network_raster_path = f"{custom_path}.tif"
+                output_channel_network_vector_path = f"{custom_path}.{vector_extension}"
+
             _, dem_profile = t.read_raster(self.dem_path)
             out_profile = dem_profile.copy()
             out_profile.update(dtype="int16", nodata=-32768)
 
-            flowline = gpd.read_file(self.flowline_path)
+            flowline = gpd.read_file(flowline)
 
             channel_network = t.rasterize_flowline(
                 flowline, dem_profile, buffer=None
@@ -1389,46 +1453,66 @@ class PyGeoFlood(object):
             t.write_raster(
                 raster=channel_network,
                 profile=out_profile,
-                file_path=self.channel_network_raster_path,
+                file_path=output_channel_network_raster_path,
             )
 
             print(
-                f"Channel network raster written to {str(self.channel_network_raster_path)}"
+                f"Channel network raster written to {output_channel_network_raster_path}"
             )
 
-            # write vector dataset
-            self.channel_network_path = (
-                self.channel_network_raster_path.with_suffix(
-                    f".{vector_extension}"
-                )
-            )
             flowline["Type"] = "ChannelNetwork_NHD"
             # 0 indexed hydroids
             flowline["HYDROID"] = flowline.index
             flowline = flowline[["HYDROID", "Type", "geometry"]]
-            flowline.to_file(self.channel_network_path)
+            flowline.to_file(output_channel_network_vector_path)
             print(
-                f"Channel network vector written to {str(self.channel_network_path)}"
+                f"Channel network vector written to {output_channel_network_vector_path}"
             )
             print("Note: No channel network extraction performed. The NHD MR flowline was used.")
 
         else:
             print("Retracing flowline...")
+
+            if custom_curvature is None:
+                curvature = self.curvature_path
+            else:
+                curvature = custom_curvature
+            if custom_mfd_fac is None:
+                mfd_fac = self.mfd_fac_path
+            else:
+                mfd_fac = custom_mfd_fac
+            if custom_endpoints is None:
+                endpoints = self.endpoints_path
+            else:
+                endpoints = custom_endpoints
+            if custom_binary_hand is None:
+                binary_hand = self.binary_hand_path
+            else:
+                binary_hand = custom_binary_hand
+
+            for input in [custom_curvature,
+                        custom_mfd_fac,
+                        custom_endpoints,
+                        custom_binary_hand]:
+                if input is not None and custom_path is None:
+                    raise ValueError(f"A custom path is required when a custom {input} is provided.")
+
             required_files = [
-                ("Curvature raster", self.curvature_path),
-                ("Flow accumulation raster", self.mfd_fac_path),
-                ("Endpoints csv", self.endpoints_path),
+                ("Curvature raster", curvature),
+                ("Flow accumulation raster", mfd_fac),
+                ("Endpoints csv", endpoints),
+                ("Binary Hand", binary_hand)
             ]
 
             t.check_attributes(required_files, "extract_channel_network")
 
             # read and prepare required rasters
-            mfd_fac, fac_profile = t.read_raster(self.mfd_fac_path)
+            mfd_fac, fac_profile = t.read_raster(mfd_fac)
             mfd_fac[mfd_fac == fac_profile["nodata"]] = np.nan
             mfd_fac = np.log(mfd_fac)
             mfd_fac = t.minmax_scale(mfd_fac)
 
-            curvature, _ = t.read_raster(self.curvature_path)
+            curvature, _ = t.read_raster(curvature)
             curvature[(curvature < -10) | (curvature > 10)] = np.nan
             curvature = t.minmax_scale(curvature)
 
@@ -1438,12 +1522,12 @@ class PyGeoFlood(object):
             # use custom (likely NHD HR) flowline, NHD MR flowlines (binary HAND),
             # curvature, and flow accumulation in cost function
             if use_custom_flowline:
+                    
                 required_files = [
                     (
                         "Custom flowline raster",
                         self.custom_flowline_raster_path,
                     ),
-                    ("Binary HAND raster", self.binary_hand_path),
                 ]
                 t.check_attributes(
                     required_files,
@@ -1459,10 +1543,6 @@ class PyGeoFlood(object):
             # use NHD MR flowlines (binary HAND), curvature, and flow accumulation
             # in cost function (no custom flowline)
             elif not no_flowline:
-                required_files = [
-                    ("Binary HAND raster", self.binary_hand_path),
-                ]
-                t.check_attributes(required_files, "extract_channel_network")
                 custom_flowline_raster = None
                 weight_binary_hand = 0.75
                 weight_custom_flowline = 0
@@ -1502,6 +1582,7 @@ class PyGeoFlood(object):
                 (weight_binary_hand, binary_hand),
                 (weight_custom_flowline, custom_flowline_raster),
             ]
+            print(weight_curvature, weight_mfd_fac, weight_binary_hand, weight_custom_flowline)
 
             cost = t.get_combined_cost(weights_arrays)
 
@@ -1510,12 +1591,6 @@ class PyGeoFlood(object):
             print(f"cost shape: {cost.shape}")
 
             if write_cost_function:
-                self.cost_function_channel_path = t.get_file_path(
-                    custom_path=None,
-                    project_dir=self.project_dir,
-                    dem_name=self.dem_path.stem,
-                    suffix="cost_function_channel",
-                )
                 t.write_raster(
                     raster=cost,
                     profile=fac_profile,
@@ -1533,18 +1608,18 @@ class PyGeoFlood(object):
             )
             channel_network, stream_rowcol, stream_keys = t.get_channel_network(
                 cost,
-                self.endpoints_path,
+                endpoints,
                 fac_profile["transform"],
             )
 
-            ### write channel network raster and shapefile
-            # raster
-            self.channel_network_raster_path = t.get_file_path(
-                custom_path=custom_path,
-                project_dir=self.project_dir,
-                dem_name=self.dem_path.stem,
-                suffix="channel_network",
-            )
+            if custom_path is None:
+                output_channel_network_raster_path = self.channel_network_raster_path
+                output_channel_network_vector_path = self.channel_network_path
+            else:
+                output_channel_network_raster_path = f"{custom_path}.tif"
+                output_channel_network_vector_path = f"{custom_path}.{vector_extension}"
+
+
             out_profile = fac_profile.copy()
             out_profile.update(dtype="int16", nodata=-32768)
             t.write_raster(
@@ -1553,14 +1628,9 @@ class PyGeoFlood(object):
                 file_path=self.channel_network_raster_path,
             )
             print(
-                f"Channel network raster written to {str(self.channel_network_raster_path)}"
+                f"Channel network raster written to {output_channel_network_raster_path}"
             )
-            # write vector dataset
-            self.channel_network_path = (
-                self.channel_network_raster_path.with_suffix(
-                    f".{vector_extension}"
-                )
-            )
+
             t.write_vector_lines(
                 rowcol_list=stream_rowcol,
                 keys=stream_keys,
@@ -1569,13 +1639,15 @@ class PyGeoFlood(object):
                 file_path=self.channel_network_path,
             )
             print(
-                f"Channel network vector written to {str(self.channel_network_path)}"
+                f"Channel network vector written to {output_channel_network_vector_path}"
             )
 
     @t.time_it
     @t.use_config_defaults
     def calculate_hand(
         self,
+        custom_filled_dem: str | PathLike = None,
+        custom_channel_network_raster: str | PathLike = None,
         custom_path: str | PathLike = None,
         **wbt_args,
     ):
@@ -1587,6 +1659,13 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_filled_dem : `str`, `os.PathLike`, optional
+            Custom file path to input filled dem. If not provided default 
+            filled_dem is used. A custom_path is required when a custom_filled_dem is provided.
+        custom_channel_network_raster : `str`, `os.PathLike`, optional
+            Custom file path to input channel network raster. If not provided default 
+            channel_network_raster is used. A custom_path is required when 
+            a custom_channel_network_raster is provided.
         custom_path : `str`, `os.PathLike`, optional
             Path to save HAND raster. If not provided, basins raster will be
             saved in project directory.
@@ -1595,10 +1674,24 @@ class PyGeoFlood(object):
             `elevation_above_stream` function. See WhiteboxTools documentation
             for details.
         """
+        if custom_filled_dem is None:
+            filled_dem = self.filled_path
+        else:
+            filled_dem = custom_filled_dem
+        if custom_channel_network_raster is None:
+            channel_network_raster = self.channel_network_raster_path
+        else:
+            channel_network_raster = custom_channel_network_raster
+
+
+        for input in [custom_filled_dem,
+                      custom_channel_network_raster]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
 
         required_rasters = [
-            ("Filled DEM", self.filled_path),
-            ("Channel network raster", self.channel_network_raster_path),
+            ("Filled DEM", filled_dem),
+            ("Channel network raster", channel_network_raster),
         ]
         t.check_attributes(required_rasters, "calculate_hand")
 
@@ -1609,6 +1702,11 @@ class PyGeoFlood(object):
             dem_name=self.dem_path.stem,
             suffix="HAND",
         )
+        # set output file path for HAND
+        if custom_path is None:
+            output_hand_path = self.hand_path    
+        else:
+            output_hand_path = f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -1616,18 +1714,19 @@ class PyGeoFlood(object):
         # calculate HAND
         # use absolute paths to avoid errors
         wbt.elevation_above_stream(
-            dem=self.filled_path.resolve(),
-            streams=self.channel_network_raster_path.resolve(),
-            output=self.hand_path.resolve(),
+            dem=Path(filled_dem).resolve(),
+            streams=Path(channel_network_raster).resolve(),
+            output=Path(output_hand_path).resolve(),
             **wbt_args,
         )
 
-        print(f"HAND raster written to {str(self.hand_path)}")
+        print(f"HAND raster written to {output_hand_path}")
 
     @t.time_it
     @t.use_config_defaults
     def segment_channel_network(
         self,
+        custom_channel_network_vector: str | PathLike = None,
         custom_path: str | PathLike = None,
         vector_extension: str = "shp",
         segment_length: int | float = 1000,
@@ -1637,6 +1736,10 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_channel_network_vector : `str`, `os.PathLike`, optional
+            Custom file path to input channel network vector. If not provided default 
+            channel_network_vector is used. A custom_path is required 
+            when a custom_channel_network_vector is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save segmented channel network. If not provided,
             segmented channel network will be saved in project directory.
@@ -1645,13 +1748,19 @@ class PyGeoFlood(object):
         segment_length : `int` or `float`, optional
             Length of segments. Default is 1000 units.
         """
+        if custom_channel_network_vector is None:
+            channel_network_vector = self.channel_network_path
+        else:
+            channel_network_vector = custom_channel_network_vector
+            if custom_path is None:
+                raise ValueError(f"A custom path is required when a custom custom_channel_network_vector is provided.")
+
         check_files = [
-            ("Channel network vector", self.channel_network_path),
-            ("PyGeoFlood.catchment_path", self.catchment_path),
+            ("Channel network vector", channel_network_vector),
         ]
         t.check_attributes(check_files, "segment_channel_network")
 
-        channel_network = gpd.read_file(self.channel_network_path)
+        channel_network = gpd.read_file(channel_network_vector)
 
         segments = t.split_network(channel_network, segment_length)
 
@@ -1665,24 +1774,24 @@ class PyGeoFlood(object):
             crs=channel_network.crs,
         )
 
-        self.segmented_channel_network_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="segmented_channel_network",
-            extension=vector_extension,
-        )
+        # set file path
+        if custom_path is None:
+            output_segmented_channel_network_path = self.segmented_channel_network_path    
+        else:
+            output_segmented_channel_network_path = f"{custom_path}.{vector_extension}"
 
-        out_gdf.to_file(self.segmented_channel_network_path)
+        out_gdf.to_file(output_segmented_channel_network_path)
 
         print(
-            f"Segmented channel network written to {str(self.segmented_channel_network_path)}"
+            f"Segmented channel network written to {output_segmented_channel_network_path}"
         )
 
     @t.time_it
     @t.use_config_defaults
     def delineate_segment_catchments(
         self,
+        custom_segmented_channel_network: str | PathLike = None,
+        custom_d8_fdr: str | PathLike = None,
         custom_path: str | PathLike = None,
         **wbt_args,
     ):
@@ -1694,26 +1803,45 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_segmented_channel_network_path : `str`, `os.PathLike`, optional
+            Custom file path to input segmented channel network path. If not provided default 
+            is used. A custom_path is required when a custom_segmented_channel_network_path is provided.
+        custom_d8_fdr : `str`, `os.PathLike`, optional
+            Custom file path to input d8 fdr. If not provided default 
+            d8_fdr is used. A custom_path is required when a custom_d8_fdr is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save segment catchments raster. If not provided,
             segment catchments will be saved in project directory.
         wbt_args : `dict`, optional
             Additional arguments to pass to the WhiteboxTools
         """
+        if custom_segmented_channel_network is None:
+            segmented_channel_network = self.segmented_channel_network_path
+        else:
+            segmented_channel_network = custom_segmented_channel_network
+        if custom_d8_fdr is None:
+            d8_fdr = self.d8_fdr_path
+        else:
+            d8_fdr = custom_d8_fdr
+
+        for input in [custom_segmented_channel_network,
+                    custom_d8_fdr]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
 
         required_files = [
             (
                 "Segmented channel network vector",
-                self.segmented_channel_network_path,
+                segmented_channel_network,
             ),
-            ("D8 flow direction raster", self.d8_fdr_path),
+            ("D8 flow direction raster", d8_fdr),
         ]
         t.check_attributes(required_files, "delineate_segment_catchments")
 
         # rasterize segmented channel network to use in wbt.watershed()
-        with rio.open(self.d8_fdr_path) as ds:
+        with rio.open(d8_fdr) as ds:
             profile = ds.profile
-        gdf = gpd.read_file(self.segmented_channel_network_path)
+        gdf = gpd.read_file(segmented_channel_network)
         segments_raster = rasterize(
             zip(gdf.geometry, gdf["HYDROID"]),
             out_shape=(profile["height"], profile["width"]),
@@ -1722,13 +1850,8 @@ class PyGeoFlood(object):
             fill=0,
         )
 
-        # get file path for segmented channel network raster
-        self.segmented_channel_network_raster_path = t.get_file_path(
-            custom_path=None,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="segmented_channel_network",
-        )
+        # set segmented channel network raster name
+        output_segmented_channel_network_raster_path = self.segmented_channel_network_raster_path
 
         # write segmented channel network raster
         out_profile = profile.copy()
@@ -1736,16 +1859,15 @@ class PyGeoFlood(object):
         t.write_raster(
             raster=segments_raster,
             profile=out_profile,
-            file_path=self.segmented_channel_network_raster_path,
+            file_path=output_segmented_channel_network_raster_path,
         )
 
-        # get file path for segmented channel network catchments
-        self.segment_catchments_raster_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="segment_catchments",
-        )
+        # set segmented channel network catachments path
+        if custom_path is None:
+            output_segment_catchments_path = self.segment_catchments_raster_path    
+        else:
+            output_segment_catchments_path = f"{custom_path}.tif"
+
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -1753,20 +1875,25 @@ class PyGeoFlood(object):
         # delineate catchments for each segment
         # use absolute paths to avoid errors
         wbt.watershed(
-            d8_pntr=self.d8_fdr_path.resolve(),
-            pour_pts=self.segmented_channel_network_raster_path.resolve(),
-            output=self.segment_catchments_raster_path.resolve(),
+            d8_pntr=Path(d8_fdr).resolve(),
+            pour_pts=Path(output_segmented_channel_network_raster_path).resolve(),
+            output=Path(output_segment_catchments_path).resolve(),
             **wbt_args,
         )
 
         print(
-            f"Segment catchments written to {str(self.segment_catchments_raster_path)}"
+            f"Segment catchments written to {output_segment_catchments_path}"
         )
 
     @t.time_it
     @t.use_config_defaults
     def calculate_src(
         self,
+        custom_dem: str | PathLike = None,
+        custom_segmented_channel_network: str | PathLike = None,
+        custom_segment_catchments_raster: str | PathLike = None,
+        custom_catchments: str | PathLike = None,
+        custom_hand: str | PathLike = None,
         custom_path: str | PathLike = None,
         # write_segment_catchments_features: bool = False,
         # vector_extension: str = None,
@@ -1783,6 +1910,24 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_dem : `str`, `os.PathLike`, optional
+            Custom file path to input dem. If not provided default DEM
+            is used. A custom_path is required when a custom_dem is provided.
+        custom_segmented_channel_network_path : `str`, `os.PathLike`, optional
+            Custom file path to input segmented channel network path. If not provided default 
+            is used. A custom_path is required when a 
+            custom_segmented_channel_network_path is provided.
+        custom_segment_catchments_raster : `str`, `os.PathLike`, optional
+            Custom file path to input segmented catchment raster path. If not provided default 
+            is used. A custom_path is required when a 
+            custom_segment_catchments_raster is provided.
+        custom_catchments: `str`, `os.PathLike`, optional
+            Custom file path to input catchments. If not provided default 
+            catchments is used. A custom_path is required when a 
+            custom_catchments is provided.
+        custom_hand : `str`, `os.PathLike`, optional
+            Custom file path to input HAND. If not provided default 
+            hand is used. A custom_path is required when a custom_hand is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save synthetic rating curves. If not provided, SRC
             will be saved in project directory.
@@ -1810,42 +1955,70 @@ class PyGeoFlood(object):
             6            | 0.010
             7            | 0.025
         """
+        if custom_dem is None:
+            dem = self.dem_path
+        else:
+            dem = custom_dem
+
+        if custom_segmented_channel_network is None:
+            segmented_channel_network = self.segmented_channel_network_path
+        else:
+            segmented_channel_network = custom_segmented_channel_network
+
+        if custom_segment_catchments_raster is None:
+            segment_catchment_raster = self.segment_catchments_raster_path
+        else:
+            segment_catchment_raster = custom_segment_catchments_raster
+
+        if custom_catchments is None:
+            catchments = self.catchment_path
+        else:
+            catchments = custom_catchments
+        
+        if custom_hand is None:
+            hand = self.hand_path
+        else:
+            hand = custom_hand
+
+        for input in [custom_dem,
+                    custom_segmented_channel_network,
+                    custom_catchments,
+                    custom_segment_catchments_raster,
+                    custom_hand]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
+
+
 
         required_files = [
-            ("DEM", self.dem_path),
-            (
-                "Segmented channel network vector",
-                self.segmented_channel_network_path,
-            ),
-            (
-                "Channel network segment catchments",
-                self.segment_catchments_raster_path,
-            ),
-            ("PyGeoFlood.catchment_path", self.catchment_path),
-            ("HAND raster", self.hand_path),
+            ("DEM", dem),
+            ("Segmented channel network vector",segmented_channel_network,),
+            ("Channel network segment catchments",segment_catchment_raster,),
+            ("PyGeoFlood.catchment_path", catchments),
+            ("HAND raster", hand),
         ]
 
         t.check_attributes(required_files, "calculate_src")
 
         segmented_channel_network = gpd.read_file(
-            self.segmented_channel_network_path
+            segmented_channel_network
         )
 
-        nwm_catchments = gpd.read_file(self.catchment_path)
+        nwm_catchments = gpd.read_file(catchments)
         nwm_catchments = nwm_catchments.to_crs(segmented_channel_network.crs)
 
-        with rio.open(self.dem_path) as ds:
+        with rio.open(dem) as ds:
             msg = "Segmented channel network crs does not match DEM crs"
             assert ds.crs == segmented_channel_network.crs, msg
 
         segment_catchments, profile = t.read_raster(
-            self.segment_catchments_raster_path
+            segment_catchment_raster
         )
 
-        hand, _ = t.read_raster(self.hand_path)
+        hand, _ = t.read_raster(hand)
 
         river_attributes = t.get_river_attributes(
-            self.dem_path,
+            dem,
             segment_catchments,
             nwm_catchments,
             segmented_channel_network,
@@ -1853,19 +2026,13 @@ class PyGeoFlood(object):
             min_slope,
         )
 
-        # if write_river_attributes:
-        self.river_attributes_path = t.get_file_path(
-            custom_path=None,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="river_attributes",
-            extension="csv",
-        )
-        river_attributes.to_csv(self.river_attributes_path, index=False)
-        print(f"River attributes written to {str(self.river_attributes_path)}")
+        # river attributes path
+        river_attributes_path = self.river_attributes_path
+        river_attributes.to_csv(river_attributes_path, index=False)
+        print(f"River attributes written to {river_attributes_path}")
 
         # slope raster from unfiltered DEM (*_slope.tif is from filtered DEM)
-        unfilt_dem, _ = t.read_raster(self.dem_path)
+        unfilt_dem, _ = t.read_raster(dem)
         unfilt_slope = t.compute_dem_slope(
             unfilt_dem, profile["transform"].a, verbose=False
         )
@@ -1886,21 +2053,28 @@ class PyGeoFlood(object):
             custom_roughness_path,
         )
 
-        self.src_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="src",
-            extension="csv",
-        )
+        # self.src_path = t.get_file_path(
+        #     custom_path=custom_path,
+        #     project_dir=self.project_dir,
+        #     dem_name=self.dem_path.stem,
+        #     suffix="src",
+        #     extension="csv",
+        # )
+        # set src path
+        if custom_path is None:
+            output_src_path = self.src_path    
+        else:
+            output_src_path = f"{custom_path}.csv"
 
-        src_df.to_csv(self.src_path, index=False)
-        print(f"Synthetic rating curves written to {str(self.src_path)}")
+        src_df.to_csv(output_src_path, index=False)
+        print(f"Synthetic rating curves written to {output_src_path}")
 
     @t.time_it
     @t.use_config_defaults
     def calculate_flood_stage(
         self,
+        custom_src: str | PathLike = None,
+        custom_streamflow_forecast_path: str | PathLike = None,
         custom_path: str | PathLike = None,
         custom_Q: int | float = None,
     ):
@@ -1915,6 +2089,12 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_src : `str`, `os.PathLike`, optional
+            Custom file path to input synthetic rating curve. If not provided default 
+            src is used. A custom_path is required when a custom_src is provided.
+        custom_streamflow_forecast_path : `str`, `os.PathLike`, optional
+            Custom file path to input streamflow_forecast_path. If not provided default 
+            is used. A custom_path is required when a custom_streamflow_forecast_path is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save flood stage interpolated from synthetic rating
             curves. If not provided, flood stage will be saved in project
@@ -1924,11 +2104,26 @@ class PyGeoFlood(object):
             If set, custom_Q will be used to calculate flood stage instead of
             forecasted streamflow values.
         """
+        if custom_src is None:
+            src = self.src_path
+        else:
+            src = custom_src
+        if custom_streamflow_forecast_path is None:
+            streamflow_forcast = self.streamflow_forecast_path
+        else:
+            streamflow_forcast = custom_streamflow_forecast_path
+
+        for input in [custom_src,
+                custom_streamflow_forecast_path]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
+
+
         required_files = [
-            ("Synthetic rating curves", self.src_path),
+            ("Synthetic rating curves", src),
             (
                 "PyGeoFlood.streamflow_forecast_path",
-                self.streamflow_forecast_path,
+                streamflow_forcast,
             ),
         ]
 
@@ -1939,10 +2134,10 @@ class PyGeoFlood(object):
             t.check_attributes([required_files[0]], "calculate_flood_stage")
 
         # read synthetic rating curves
-        src = pd.read_csv(self.src_path)
+        src = pd.read_csv(src)
         src = src[["HYDROID", "Stage_m", "Volume_m3", "COMID", "Discharge_cms"]]
 
-        out_df = t.get_flood_stage(src, self.streamflow_forecast_path, custom_Q)
+        out_df = t.get_flood_stage(src, streamflow_forcast, custom_Q)
 
         self.flood_stage_path = t.get_file_path(
             custom_path=custom_path,
@@ -1951,14 +2146,22 @@ class PyGeoFlood(object):
             suffix="flood_stage",
             extension="csv",
         )
+        # set file path
+        if custom_path is None:
+            output_flood_stage_depth_path = self.flood_stage_path    
+        else:
+            output_segment_catchments_path = f"{custom_path}.csv"
 
-        out_df.to_csv(self.flood_stage_path, index=False)
-        print(f"Flood stages written to {str(self.flood_stage_path)}")
+        out_df.to_csv(output_flood_stage_depth_path, index=False)
+        print(f"Flood stages written to {output_flood_stage_depth_path}")
 
     @t.time_it
     @t.use_config_defaults
     def inundate(
         self,
+        custom_hand: str | PathLike = None,
+        custom_flood_stage: str | PathLike = None,
+        custom_segment_catchments_raster: str | PathLike = None,
         custom_path: str | PathLike = None,
     ):
         """
@@ -1966,33 +2169,62 @@ class PyGeoFlood(object):
 
         Parameters
         ----------
+        custom_hand : `str`, `os.PathLike`, optional
+            Custom file path to input sHAND. If not provided default 
+            HAND is used. A custom_path is required when a custom_hand is provided.
+        custom_flood_stage : `str`, `os.PathLike`, optional
+            Custom file path to input flood stage. If not provided default 
+            is used. A custom_path is required when a custom_flood_stage is provided.
+        custom_segment_catchments : `str`, `os.PathLike`, optional
+            Custom file path to input segment_catchments. If not provided default 
+            is used. A custom_path is required when a custom_segment_catchments is provided.
         custom_path : `str`, `os.PathLike`, optional
             Custom path to save flood inundation raster. If not provided, flood
             inundation raster will be saved in project directory.
         """
-        required_files = [
-            ("HAND raster", self.hand_path),
-            ("Flood stages", self.flood_stage_path),
-            ("Segment catchments", self.segment_catchments_raster_path),
-        ]
+        if custom_hand is None:
+            hand = self.hand_path
+        else:
+            hand = custom_hand
+        
+        if custom_flood_stage is None:
+            flood_stage = self.flood_stage_path
+        else:
+            flood_stage = custom_flood_stage
 
+        if custom_segment_catchments_raster is None:
+            segment_catchment_raster = self.segment_catchments_raster_path
+        else:
+            segment_catchment_raster = custom_segment_catchments_raster
+
+        for input in [custom_hand,
+                    custom_flood_stage,
+                    custom_segment_catchments_raster]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
+
+        required_files = [
+            ("HAND raster", hand),
+            ("Flood stages", flood_stage),
+            ("Segment catchments", segment_catchment_raster),
+        ]
         t.check_attributes(required_files, "inundate")
 
-        hand, profile = t.read_raster(self.hand_path)
-        seg_catch, _ = t.read_raster(self.segment_catchments_raster_path)
-        df = pd.read_csv(self.flood_stage_path)
+        hand, profile = t.read_raster(hand)
+        seg_catch, _ = t.read_raster(segment_catchment_raster)
+        df = pd.read_csv(flood_stage)
         df = df.sort_values(by="HYDROID")
         # inundated = t.get_inun(hand, seg_catch, df)
         hydroids = df["HYDROID"].to_numpy()
         stage_m = df["Stage_m"].to_numpy()
         inundated = t.jit_inun(hand, seg_catch, hydroids, stage_m)
 
-        self.fim_path = t.get_file_path(
-            custom_path=custom_path,
-            project_dir=self.project_dir,
-            dem_name=self.dem_path.stem,
-            suffix="fim",
-        )
+        # set file path
+        if custom_path is None:
+            output_fim_path = self.fim_path    
+        else:
+            output_fim_path = f"{custom_path}.tif"
+
 
         out_profile = profile.copy()
         out_profile.update(dtype="float32")
@@ -2000,10 +2232,10 @@ class PyGeoFlood(object):
         t.write_raster(
             raster=inundated,
             profile=out_profile,
-            file_path=self.fim_path,
+            file_path=output_fim_path,
         )
 
-        print(f"Flood inundation raster written to {str(self.fim_path)}")
+        print(f"Flood inundation raster written to {output_fim_path}")
 
     @t.time_it
     def run_fim_workflow(self):
