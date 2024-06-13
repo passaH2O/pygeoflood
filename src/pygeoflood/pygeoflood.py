@@ -111,7 +111,7 @@ class PyGeoFlood(object):
 
     def __init__(
         self,
-        dem_path,
+        dem_path=None,
         project_dir=None,
         config=None,
     ):
