@@ -2255,7 +2255,7 @@ class PyGeoFlood(object):
         # self.identify_channel_heads()
         self.find_endpoints()
         self.calculate_binary_hand()
-        if self.custom_flowline_path is not None:
+        if self.custom_flowline_path.is_file():
             self.rasterize_custom_flowline()
         self.extract_channel_network()
         self.calculate_hand()
