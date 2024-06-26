@@ -6,12 +6,13 @@ import numpy as np
 import pandas as pd
 import rasterio as rio
 import sys
-
+import os
 from . import tools as t
 from os import PathLike
 from pathlib import Path
 from rasterio.features import rasterize, shapes
-from rasterio.warp import transform_bounds
+from rasterio.transform import from_bounds
+from rasterio.warp import transform_bounds,  reproject, calculate_default_transform, Resampling
 
 
 class PyGeoFlood(object):
@@ -173,6 +174,10 @@ class PyGeoFlood(object):
         self.custom_flowline_path = f"{default_prefix}_custom_flowline.shp"
         self.custom_flowline_raster_path = f"{default_prefix}_custom_flowline_raster.tif"
         self.streamflow_forecast_path = f"{default_prefix}_streamflow_forecast"
+        self.fsm_inundation_path = f"{default_prefix}_fsm_inundation.tif"
+        self.fsm_dephier_path = f"{default_prefix}_fsm_dephier.json"
+        self.fsm_labels_path = f"{default_prefix}_fsm_labels.npy"
+        self.fsm_flowdir_path = f"{default_prefix}_fsm_flowdir.npy"
 
 
 
@@ -2241,6 +2246,303 @@ class PyGeoFlood(object):
         )
 
         print(f"Flood inundation raster written to {output_fim_path}")
+
+    @t.time_it
+    @t.use_config_defaults
+    def fill_spill_merge(
+    self,
+    uniform_depth: float = 0.5,
+    gridded_depth: str | PathLike = None,
+    custom_dem: str | PathLike = None,
+    overwrite_dephier: bool = False,
+    custom_path: str | PathLike = None
+    ):
+        """
+        Runs Fill-Spill-Merge function from RichDEM to simulate pluvial flooding. 
+
+        The method will save intermediary json files of the depression hierarchy, flow directions, 
+        and flow labels to make successive runs faster.
+
+        Parameters
+        ----------
+        uniform_depth : `float`
+            Uniform depth to inundate the landscape. Units will be the units of the DEM.
+            Defaults to 0.5.
+        gridded_depth : `str`, `os.PathLike`, optional
+            Path to a gridded depth raster to inundate the DEM. If a gridded_depth is 
+            provided, the uniform_depth will be ignored. The gridded_depth will be clipped, 
+            reprojected, and resampled to have the same resolution as the DEM if it 
+            extends past it and is not the same spatial resolution.
+        custom_dem : `str`, `os.PathLike`, optional
+            Custom file path to input dem. If not provided default 
+            DEM is used. A custom_path is required when a custom_hand is provided. Intermediary files
+            will be saved to match the name of the input custom_dem and be within the default working folder.
+        overwrite_dephier : `bool`
+            If True, fill_spill_merge will overwrite all existing .json files associated
+            with that DEM.
+        custom_path :  `str`, `os.PathLike`, optional
+            Custom path to save the inundated raster. If not provided, flooded raster 
+            will be saved in the project directory with the default name.
+        
+        """
+        try:
+            import richdem as rd
+            from _richdem.depression_hierarchy import Depression
+        except ImportError as e:
+            print(f"Could not import richdem! to install follow the following commands:")
+            print("git clone https://github.com/mdp0023/richdem.git richdem")
+            print("cd richdem/wrappers/pyrichdem")
+            print("pip install .")
+        if custom_dem is None:
+            dem = self.dem_path
+            fsm_inundation = self.fsm_inundation_path
+            fsm_dephier = self.fsm_dephier_path
+            fsm_labels = self.fsm_labels_path
+            fsm_flowdir = self.fsm_flowdir_path
+        else:
+            dem = custom_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom DEM is provided.")
+            name = custom_dem.split('/')[-1][:-4]
+            fsm_inundation = custom_path
+            fsm_dephier = f"{self.project_dir}/{name}_fsm_dephier.json"
+            fsm_labels = f"{self.project_dir}/{name}_fsm_labels.npy"
+            fsm_flowdir = f"{self.project_dir}/{name}_fsm_flowdir.npy"
+
+
+        t.check_attributes(
+            [("DEM", dem)], "fill_spill_merge"
+        )
+        # read original DEM
+        dem, dem_profile = t.read_raster(dem)
+        dem = rd.rdarray(dem,no_data=-9999, geotransform=dem_profile['transform']).astype(np.double)
+        dem[np.isnan(dem)] = dem_profile['nodata']
+        def get_bounds_from_profile(profile):
+            transform = profile['transform']
+            width = profile['width']
+            height = profile['height']
+            
+            # Calculate coordinates of top left corner
+            top_left_x, top_left_y = transform * (0, 0)
+            
+            # Calculate coordinates of bottom right corner
+            bottom_right_x, bottom_right_y = transform * (width, height)
+            
+            # Form the bounds: left, bottom, right, top
+            bounds = (top_left_x, bottom_right_y, bottom_right_x, top_left_y)
+            
+            return bounds
+
+        # function to extract depression attributes from dephier object and returns as a dictionary that can be saved for later use
+        def extract_depression_attributes(depression):
+            return{#'__class__':depression.__class__,
+                    'cell_count':depression.cell_count, 
+                    'dep_label':depression.dep_label, 
+                    'dep_vol':depression.dep_vol, 
+                    'geolink':depression.geolink, 
+                    'lchild':depression.lchild, 
+                    'ocean_linked':depression.ocean_linked, 
+                    'ocean_parent':depression.ocean_parent, 
+                    'odep':depression.odep, 
+                    'out_cell':depression.out_cell, 
+                    'out_elev':depression.out_elev,
+                    'parent':depression.parent, 
+                    'pit_cell':depression.pit_cell, 
+                    'pit_elev':depression.pit_elev, 
+                    'rchild':depression.rchild,
+                    'total_elevation':depression.total_elevation, 
+                    'water_vol':depression.water_vol}
+
+        # function to convert saved dictionary back to dephier object 
+        def dict_to_instance(data):
+            instance = Depression()
+            for key, value in data.items():
+                setattr(instance, key, value)  # Set each attribute on the instance
+            return instance
+
+        # determine depth
+        if gridded_depth is not None:
+            print(f'Using gridded_depth file: {gridded_depth}')
+            depth, depth_profile = t.read_raster(gridded_depth)
+            # calculate bounds of both rasters
+            dem_bounds = get_bounds_from_profile(dem_profile)
+            depth_bounds = get_bounds_from_profile(depth_profile)
+            
+            # ensure same CRS
+            if depth_profile['crs'] != dem_profile['crs']:
+                print(f"Reprojecting depth raster from {depth_profile['crs']} to {dem_profile['crs']}")
+                # Calculate the transform and dimensions for the destination array
+                transform, width, height = calculate_default_transform(
+                    depth_profile['crs'], dem_profile['crs'], depth_profile['width'], depth_profile['height'], *depth_bounds
+                )
+
+                # Create a template profile for the destination based on the source profile
+                destination_profile = depth_profile.copy()
+                destination_profile.update({
+                    'crs': dem_profile['crs'],
+                    'transform': transform,
+                    'width': width,
+                    'height': height
+                })
+
+                # Create an empty array for the destination data
+                destination_array = np.empty((height, width), dtype=depth.dtype)
+
+                # Reproject the source array to the destination array
+                reproject(
+                    source=depth,
+                    destination=destination_array,
+                    src_transform=depth_profile['transform'],
+                    src_crs=depth_profile['crs'],
+                    dst_transform=transform,
+                    dst_crs=dem_profile['crs'],
+                    resampling=Resampling.nearest  # Choose an appropriate resampling algorithm
+                ) 
+                depth = destination_array
+                depth_profile = destination_profile
+           
+            # ensure same bounds 
+            if depth_bounds != dem_bounds:
+                print(f"Clipping depth_raster to dem_raster")
+                # Calculate overlap bounds
+                overlap_bounds = (
+                    max(depth_bounds[0], dem_bounds[0]),  # left
+                    max(depth_bounds[1], dem_bounds[1]),  # bottom
+                    min(depth_bounds[2], dem_bounds[2]),  # right
+                    min(depth_bounds[3], dem_bounds[3])   # top
+                )
+
+                # Convert overlap bounds to array indices for depth_array
+                depth_transform = depth_profile['transform']
+                top_left = ~depth_transform * (overlap_bounds[0], overlap_bounds[3])  # ~transform is the inverse of transform
+                bottom_right = ~depth_transform * (overlap_bounds[2], overlap_bounds[1])
+                top_left_row, top_left_col = map(int, np.floor(top_left))
+                bottom_right_row, bottom_right_col = map(int, np.ceil(bottom_right))
+
+                # Clip the depth_array
+                clipped_depth_array = depth[top_left_row:bottom_right_row, top_left_col:bottom_right_col]
+
+                # Update the depth_profile
+                new_transform = from_bounds(*overlap_bounds, clipped_depth_array.shape[1], clipped_depth_array.shape[0])
+                depth_profile.update({
+                    'height': clipped_depth_array.shape[0],
+                    'width': clipped_depth_array.shape[1],
+                    'transform': new_transform
+                })
+                depth = clipped_depth_array
+                dem_bounds = get_bounds_from_profile(dem_profile)
+                depth_bounds = get_bounds_from_profile(depth_profile)
+            
+            # ensure same cell size
+            depth_cell_size = (depth_profile['transform'][0], depth_profile['transform'][0])
+            dem_cell_size = ((dem_profile['transform'][0], dem_profile['transform'][0]))
+            if depth_cell_size != dem_cell_size:
+                print("Resampling depth raster to have same cell size as dem raster")
+
+                # Update the depth_profile to match the dem_profile's grid
+                resampled_depth_profile = depth_profile.copy()
+                resampled_depth_profile.update({
+                    'transform': dem_profile['transform'],
+                    'width': dem_profile['width'],
+                    'height': dem_profile['height'],
+                    'crs': dem_profile['crs']  # Update this only if you've reprojected the depth raster to match the DEM's CRS
+                })
+
+                # Create an empty array for the resampled depth data
+                resampled_depth_array = np.empty((dem_profile['height'], dem_profile['width']), dtype=depth.dtype)
+
+                # Reproject (resample) the depth_array to match the DEM's grid
+                reproject(
+                    source=depth,
+                    destination=resampled_depth_array,
+                    src_transform=depth_profile['transform'],
+                    src_crs=depth_profile['crs'],
+                    dst_transform=dem_profile['transform'],
+                    dst_crs=dem_profile['crs'],
+                    resampling=Resampling.bilinear  # Bilinear resampling is often a good choice for continuous data
+                )
+
+                # Update the depth_array and depth_profile to use the resampled data and profile
+                depth = resampled_depth_array
+                depth_profile = resampled_depth_profile
+
+            # create water depth array
+            water_depth = rd.rdarray(depth,
+                               no_data=-9999, 
+                               geotransform=depth_profile['transform']).astype(np.double)
+        
+        else:
+            # create a water depth array of 0s
+            water_depth = rd.rdarray(np.zeros(dem.shape), 
+                                     no_data=-9999, 
+                                     geotransform=dem_profile['transform'])
+
+            # #set the water depth
+            water_depth += uniform_depth
+            
+        # if not all intermediary files exist or if overwrite is True:
+        int_files = [fsm_dephier, fsm_labels, fsm_flowdir]   
+        files_exist = all(os.path.exists(path) for path in int_files)
+        
+        if not files_exist or overwrite_dephier:
+            print('Calculating depheir')
+            # Get a simple labels array indicating all the edge cells belong to the ocean
+            labels = rd.get_new_depression_hierarchy_labels(dem.shape)
+
+            # Generate the Depression Hierarchy
+            dephier, flowdirs = rd.get_depression_hierarchy(dem, labels)
+
+            # convert depression data to list of dictioanry
+            depression_data = [extract_depression_attributes(dep) for dep in dephier]
+
+            # SAVE FILES
+            # Save depression dictioanry to json file
+            with open(fsm_dephier, 'w') as f:
+                json.dump(depression_data, f)
+            np.save(fsm_flowdir, flowdirs)
+            np.save(fsm_labels, labels)
+
+        else:
+            print('Using saved dephier')
+
+        # LOAD FILES
+        # read in json file 
+        with open(fsm_dephier, 'r') as f:
+            depression_data = json.load(f)
+
+        # convert json back to dephier object
+        deps_object =[]
+        for dep in depression_data:
+            deps_object.append(dict_to_instance(dep))
+
+        labels=np.load(fsm_labels)
+        flowdirs=np.load(fsm_flowdir)
+        labels = rd.rdarray(labels,no_data=-9999, 
+                            geotransform=dem_profile['transform'])
+        flowdirs = rd.rdarray(flowdirs,no_data=-9999,
+                               geotransform=dem_profile['transform'])
+        print('running')
+        # #run FSM (the result is placed in the same water_depth array):
+ 
+        rd.fill_spill_merge(dem=dem, 
+                            labels=labels, 
+                            flowdirs=flowdirs, 
+                            deps=deps_object, 
+                            wtd=water_depth)
+        print('ran')
+        water_depth[water_depth == 0] = None
+
+
+        # save output FSM
+        # Save the water_depth raster to the specified file path
+        dem_profile.update(compress='lzw')
+        with rio.open(fsm_inundation, 'w', **dem_profile) as dst:
+            dst.write(water_depth, 1)
+            
+        print(f"FSM inundation saved to {fsm_inundation}")
+       
+
+
 
     @t.time_it
     def run_fim_workflow(self):

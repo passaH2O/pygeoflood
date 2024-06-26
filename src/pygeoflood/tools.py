@@ -213,7 +213,7 @@ def read_raster(
         raster = ds.read(1)
         profile = ds.profile
         msg = "Pixel width must be equal to pixel height"
-        assert abs(ds.transform.a) == abs(ds.transform.e), msg
+        assert round(abs(ds.transform.a),6) == round(abs(ds.transform.e),6), msg
     # convert nodata to np.nan if dtype is float
     if "float" in profile["dtype"].lower():
         raster[raster == profile["nodata"]] = np.nan
