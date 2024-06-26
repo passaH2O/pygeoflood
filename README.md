@@ -25,6 +25,14 @@ $ conda activate pygeoflood-env
 (pygeoflood-env) $ pip install git+https://github.com/passah2o/pygeoflood
 ```
 
+If you plan on running the Fill-Spill-Merge function to estimate pluvial flooding, you must also install a fork of the richdem package using the following commands:
+
+```bash
+$ git clone https://github.com/mdp0023/richdem.git richdem
+$ cd richdem/wrappers/pyrichdem
+$ pip install .
+```
+
 To obtain an editable installation for local development:
 
 ```bash
