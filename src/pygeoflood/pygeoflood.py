@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 import rasterio as rio
 import sys
-import richdem as rd
-from _richdem.depression_hierarchy import Depression
 import os
 from . import tools as t
 from os import PathLike
@@ -2287,6 +2285,14 @@ class PyGeoFlood(object):
             will be saved in the project directory with the default name.
         
         """
+        try:
+            import richdem as rd
+            from _richdem.depression_hierarchy import Depression
+        except ImportError as e:
+            print(f"Could not import richdem! to install follow the following commands:")
+            print("git clone https://github.com/mdp0023/richdem.git richdem")
+            print("cd richdem/wrappers/pyrichdem")
+            print("pip install .")
         if custom_dem is None:
             dem = self.dem_path
             fsm_inundation = self.fsm_inundation_path
