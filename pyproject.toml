@@ -10,6 +10,7 @@ authors = [
     { name = "Xing Zheng", email = "zhengxingwhu@gmail.com" },
     { name = "Alec Carruthers", email = "author@example.com" },
     { name = "Mark Wang", email = "mark.wang@utexas.edu" },
+    { name = "Matthew Preisser", email = "mattpreisser@gmail.com"}
 ]
 maintainers = [
     { name = "Mark Wang", email = "mark.wang@utexas.edu" },
@@ -37,6 +38,7 @@ dependencies = [
     "scipy",
     "whitebox",
     "xarray",
+    "fiona",
 ]
 
 [project.urls]
