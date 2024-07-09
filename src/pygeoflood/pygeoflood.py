@@ -2160,7 +2160,7 @@ class PyGeoFlood(object):
         if custom_path is None:
             output_flood_stage_depth_path = self.flood_stage_path    
         else:
-            output_segment_catchments_path = f"{custom_path}.csv"
+            output_flood_stage_depth_path = f"{custom_path}.csv"
 
         out_df.to_csv(output_flood_stage_depth_path, index=False)
         print(f"Flood stages written to {output_flood_stage_depth_path}")
@@ -2200,7 +2200,7 @@ class PyGeoFlood(object):
         if custom_flood_stage is None:
             flood_stage = self.flood_stage_path
         else:
-            flood_stage = custom_flood_stage
+            flood_stage = f"{custom_flood_stage}.csv"
 
         if custom_segment_catchments_raster is None:
             segment_catchment_raster = self.segment_catchments_raster_path
