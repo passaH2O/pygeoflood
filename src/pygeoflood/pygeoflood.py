@@ -2229,6 +2229,9 @@ class PyGeoFlood(object):
         stage_m = df["Stage_m"].to_numpy()
         inundated = t.jit_inun(hand, seg_catch, hydroids, stage_m)
 
+        # set nan values to 0
+        inundated[np.isnan(inundated)] = -9999
+
         # set file path
         if custom_path is None:
             output_fim_path = self.fim_path    
