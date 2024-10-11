@@ -1,0 +1,9 @@
+name: pygeoflood-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - libcxx # may be needed for skfmm on mac
+  - pip
+  - pip:
+    - git+https://github.com/passah2o/pygeoflood
