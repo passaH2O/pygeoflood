@@ -17,12 +17,10 @@ See the `examples` directory for Jupyter notebooks that demonstrate how to use `
 $ pip install git+https://github.com/passah2o/pygeoflood
 ```
 
-We recommend installing `pygeoflood` into a virtual environment. Below are commands for installing `pygeoflood` into a `conda` environment[^1].
+We recommend installing `pygeoflood` into a virtual environment:
 
 ```bash
-$ conda create -n pygeoflood-env python=3.11
-$ conda activate pygeoflood-env
-(pygeoflood-env) $ pip install git+https://github.com/passah2o/pygeoflood
+$ conda env create -f pygeoflood-env.yml
 ```
 
 If you plan on running the Fill-Spill-Merge function to estimate pluvial flooding, you must also install a fork of the richdem package using the following commands:
