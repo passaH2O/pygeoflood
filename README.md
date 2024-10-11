@@ -17,7 +17,7 @@ See the `examples` directory for Jupyter notebooks that demonstrate how to use `
 $ pip install git+https://github.com/passah2o/pygeoflood
 ```
 
-We recommend installing `pygeoflood` into a virtual environment:
+We recommend installing `pygeoflood` into a conda environment with the provided environment file:
 
 ```bash
 $ conda env create -f pygeoflood-env.yml
