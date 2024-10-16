@@ -2,7 +2,7 @@ geopandas
 fiona
 numpy
 pandas
-rasterio
+rasterio=1.3.11
 psutil
 xarray
 numba
