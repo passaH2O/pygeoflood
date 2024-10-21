@@ -500,7 +500,10 @@ def get_WhiteboxTools(
     wbt : `WhiteboxTools`
         WhiteboxTools instance.
     """
-    wbt = WhiteboxTools(whitebox_exe_dir="/opt/whitebox_tools/WhiteboxTools")
+    wbt = WhiteboxTools()
+    # whitebox_exe_dir = "/path/to/whitebox/bin"
+    if whitebox_exe_dir is not None:
+        wbt.set_whitebox_dir(whitebox_exe_dir)
     wbt.set_verbose_mode(verbose)
     wbt.set_compress_rasters(compress)
     wbt.set_default_callback(callback)
