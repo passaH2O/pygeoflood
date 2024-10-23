@@ -504,7 +504,8 @@ def get_WhiteboxTools(
     wbt = WhiteboxTools()
     # whitebox_exe_dir = "/path/to/whitebox/bin"
     whitebox_exe_dir = os.getenv("WBT_PATH", None)
-    wbt.set_whitebox_dir(whitebox_exe_dir)
+    if whitebox_exe_dir:
+        wbt.set_whitebox_dir(whitebox_exe_dir)
     wbt.set_verbose_mode(verbose)
     wbt.set_compress_rasters(compress)
     wbt.set_default_callback(callback)
