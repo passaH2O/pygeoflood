@@ -9,6 +9,7 @@ import sys
 import time
 import warnings
 import xarray as xr
+import os
 
 from functools import wraps
 from importlib import resources
@@ -502,7 +503,8 @@ def get_WhiteboxTools(
     """
     wbt = WhiteboxTools()
     # whitebox_exe_dir = "/path/to/whitebox/bin"
-    if whitebox_exe_dir is not None:
+    whitebox_exe_dir = os.getenv("WBT_PATH", None)
+    if whitebox_exe_dir:
         wbt.set_whitebox_dir(whitebox_exe_dir)
     wbt.set_verbose_mode(verbose)
     wbt.set_compress_rasters(compress)
