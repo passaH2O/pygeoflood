@@ -32,7 +32,7 @@ dependencies = [
     "numba",
     "numpy",
     "pandas",
-    "rasterio",
+    "rasterio<1.4",
     "scikit-fmm",
     "scikit-image",
     "scipy",
