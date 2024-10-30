@@ -23,6 +23,6 @@ mpiexec -n $num_proc dinfdistdown \
     -fel ${proj_dir}/${dem_name}_fel.tif \
     -ang ${proj_dir}/${dem_name}_ang.tif \
     -slp ${proj_dir}/${dem_name}_slp.tif \
-    -src ${proj_dir}/${dem_name}_channel_network.tif \
+    -src ${proj_dir}/${dem_name}_channel_network_raster.tif \
     -dd ${proj_dir}/${dem_name}_HAND_taudem.tif \
     -m ave v
