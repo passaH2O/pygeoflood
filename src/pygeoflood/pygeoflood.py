@@ -67,15 +67,9 @@ class PyGeoFlood(object):
     channel_network_raster_path = t.path_property("channel_network_raster_path")
     cost_function_channel_path = t.path_property("cost_function_channel_path")
     hand_path = t.path_property("hand_path")
-    segmented_channel_network_path = t.path_property(
-        "segmented_channel_network_path"
-    )
-    segmented_channel_network_raster_path = t.path_property(
-        "segmented_channel_network_raster_path"
-    )
-    segment_catchments_raster_path = t.path_property(
-        "segment_catchments_raster_path"
-    )
+    segmented_channel_network_path = t.path_property("segmented_channel_network_path")
+    segmented_channel_network_raster_path = t.path_property("segmented_channel_network_raster_path")
+    segment_catchments_raster_path = t.path_property("segment_catchments_raster_path")
     river_attributes_path = t.path_property("river_attributes_path")
     segment_catchments_path = t.path_property("segment_catchments_path")
     catchment_path = t.path_property("catchment_path")
@@ -83,6 +77,10 @@ class PyGeoFlood(object):
     streamflow_forecast_path = t.path_property("streamflow_forecast_path")
     flood_stage_path = t.path_property("flood_stage_path")
     fim_path = t.path_property("fim_path")
+    fsm_inundation_path = t.path_property("fsm_inundation_path")
+    fsm_dephier_path = t.path_property("fsm_dephier_path")
+    fsm_labels_path = t.path_property("fsm_labels_path")
+    fsm_flowdir_path = t.path_property("fsm_flowdir_path")
 
 
 
@@ -140,7 +138,7 @@ class PyGeoFlood(object):
         
         # Initialize default paths
         default_prefix=f"{self.project_dir}/{self.dem_path.stem}"
-        
+        # these all become Path objects with t.path_property
         self.filtered_dem_path = f"{default_prefix}_filtered.tif"
         self.slope_path = f"{default_prefix}_slope.tif"
         self.curvature_path = f"{default_prefix}_curvature.tif"
@@ -213,7 +211,7 @@ class PyGeoFlood(object):
             for attr, value in vars(self).items():
                 if (
                     attr.endswith("_path") or attr.endswith("_dir")
-                ) and value is not None:
+                ) and value is not None and Path(value).is_file():
                     # remove leading "_" if necessary
                     attr = attr.lstrip("_")
                     file.write(f'{attr}="{value}"\n')
@@ -221,6 +219,7 @@ class PyGeoFlood(object):
 
     @staticmethod
     def from_paths(file_path):
+        # read attributes from file
         attributes = {}
         with open(file_path, "r") as file:
             for line in file:
@@ -232,7 +231,17 @@ class PyGeoFlood(object):
                     attributes[attr] = value.strip('"')
         if "project_dir" not in attributes.keys():
             attributes["project_dir"] = None
-        return PyGeoFlood(**attributes)
+        # create instance of PyGeoFlood with attributes
+        loaded_pgf = PyGeoFlood(
+            dem_path=attributes["dem_path"],
+            project_dir=attributes["project_dir"],
+        )
+        for attr, value in attributes.items():
+            if attr != "dem_path" and attr != "project_dir":
+                setattr(loaded_pgf, attr, value)
+        print(f"PyGeoFlood instance created from {file_path}")
+        print("Note: config attribute must be set separately.")
+        return loaded_pgf
 
     @t.time_it
     @t.use_config_defaults
