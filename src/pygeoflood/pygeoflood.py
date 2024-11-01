@@ -207,7 +207,7 @@ class PyGeoFlood(object):
             for attr, value in vars(self).items():
                 if (
                     attr.endswith("_path") or attr.endswith("_dir")
-                ) and value is not None:
+                ) and value is not None and Path(value).is_file():
                     # remove leading "_" if necessary
                     attr = attr.lstrip("_")
                     file.write(f'{attr}="{value}"\n')
