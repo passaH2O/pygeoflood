@@ -67,15 +67,9 @@ class PyGeoFlood(object):
     channel_network_raster_path = t.path_property("channel_network_raster_path")
     cost_function_channel_path = t.path_property("cost_function_channel_path")
     hand_path = t.path_property("hand_path")
-    segmented_channel_network_path = t.path_property(
-        "segmented_channel_network_path"
-    )
-    segmented_channel_network_raster_path = t.path_property(
-        "segmented_channel_network_raster_path"
-    )
-    segment_catchments_raster_path = t.path_property(
-        "segment_catchments_raster_path"
-    )
+    segmented_channel_network_path = t.path_property("segmented_channel_network_path")
+    segmented_channel_network_raster_path = t.path_property("segmented_channel_network_raster_path")
+    segment_catchments_raster_path = t.path_property("segment_catchments_raster_path")
     river_attributes_path = t.path_property("river_attributes_path")
     segment_catchments_path = t.path_property("segment_catchments_path")
     catchment_path = t.path_property("catchment_path")
@@ -140,7 +134,7 @@ class PyGeoFlood(object):
         
         # Initialize default paths
         default_prefix=f"{self.project_dir}/{self.dem_path.stem}"
-        
+        # these all become Path objects with t.path_property
         self.filtered_dem_path = f"{default_prefix}_filtered.tif"
         self.slope_path = f"{default_prefix}_slope.tif"
         self.curvature_path = f"{default_prefix}_curvature.tif"
