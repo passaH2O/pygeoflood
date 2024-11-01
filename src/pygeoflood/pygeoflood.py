@@ -215,6 +215,7 @@ class PyGeoFlood(object):
 
     @staticmethod
     def from_paths(file_path):
+        # read attributes from file
         attributes = {}
         with open(file_path, "r") as file:
             for line in file:
@@ -226,7 +227,17 @@ class PyGeoFlood(object):
                     attributes[attr] = value.strip('"')
         if "project_dir" not in attributes.keys():
             attributes["project_dir"] = None
-        return PyGeoFlood(**attributes)
+        # create instance of PyGeoFlood with attributes
+        loaded_pgf = PyGeoFlood(
+            dem_path=attributes["dem_path"],
+            project_dir=attributes["project_dir"],
+        )
+        for attr, value in attributes.items():
+            if attr != "dem_path" and attr != "project_dir":
+                setattr(loaded_pgf, attr, value)
+        print(f"PyGeoFlood instance created from {file_path}")
+        print("Note: config attribute must be set separately.")
+        return loaded_pgf
 
     @t.time_it
     @t.use_config_defaults
