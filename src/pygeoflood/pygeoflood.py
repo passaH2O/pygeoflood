@@ -77,6 +77,10 @@ class PyGeoFlood(object):
     streamflow_forecast_path = t.path_property("streamflow_forecast_path")
     flood_stage_path = t.path_property("flood_stage_path")
     fim_path = t.path_property("fim_path")
+    fsm_inundation_path = t.path_property("fsm_inundation_path")
+    fsm_dephier_path = t.path_property("fsm_dephier_path")
+    fsm_labels_path = t.path_property("fsm_labels_path")
+    fsm_flowdir_path = t.path_property("fsm_flowdir_path")
 
 
 
