@@ -8,7 +8,7 @@
 
 **pygeoflood** is a suite of terrain-analysis tools for mapping flood inundation in near-real time.
 
-This package is under active development as we incorporate methods for mapping fluvial, pluvial, and coastal flooding in near-real time.
+This package is under active development as we incorporate efficient methods for mapping fluvial, pluvial, and coastal flooding.
 
 View the source code on GitHub: https://github.com/passah2o/pygeoflood
 
