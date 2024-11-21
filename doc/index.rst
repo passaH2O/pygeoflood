@@ -3,28 +3,60 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-pygeoflood
-===========
+**pygeoflood** docs
+========================
 
-**pygeoflood** is a new implementation of geonet and geoflood, which are topographic based channel extraction packages that delineate surface slope, curvature, flow direction, and flow accumulation in order to implement the heigh above nearest drainage (HAND) inundaiton mapping method.
+**pygeoflood** is a suite of terrain-analysis tools for mapping flood inundation in near-real time.
 
-This package is under active development as we build out additional methods to map compound flooding in near-real time.
+This package is under active development as we incorporate methods for mapping fluvial, pluvial, and coastal flooding in near-real time.
 
+View the source code on GitHub: https://github.com/passah2o/pygeoflood
+
+.. implementation of geonet and geoflood, which are topographic based channel extraction packages that delineate slope, curvature, flow direction, and flow accumulation in order to implement the height above nearest drainage (HAND) inundation mapping method.
+
+.. This package is under active development as we build out additional methods to map compound flooding in near-real time.
+
+Installation
+#############
+
+**pygeoflood** currently supports Python 3.10 and 3.11. We recommend installing with our provided conda environment file. This will install all dependencies and a compatible version of python.
+
+.. code-block:: bash
+
+   conda env create -f pygeoflood-env.yml
+
+Alternatively, you can install the package with pip:
+
+.. code-block:: bash
+
+   pip install git+https://github.com/passah2o/pygeoflood
+
+Examples
+#################
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+.. nbgallery::
+   examples/fim_workflow_combined
+   examples/fim_workflow_indiv_steps
 
+.. Getting Started
+.. ###############
 
-Getting Started
-###############
+.. Background
+.. ##########
 
-Background
-##########
+.. User Guide
+.. ##########
 
-User Guide
-##########
+Contributing
+#############
+
+.. toctree::
+   :maxdepth: 1
+
+   Contributing bug reports and development <contribute>
 
 API Reference
 #############
@@ -32,16 +64,11 @@ API Reference
 .. toctree::
    :maxdepth: 1
 
-   apiref/apiref 
+   pygeoflood API reference <apiref/apiref>
 
-Examples
-########
 
-Issues, Questions, and Contributions
-####################################
-
-Acknowledgements
-################
+.. Acknowledgements
+.. ################
 
 
 
