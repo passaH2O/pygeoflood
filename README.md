@@ -2,13 +2,9 @@
 
 Flood mapping program based on high-resolution terrain analyses.
 
-## Documentation
+## Documentation and examples
 
-Under construction
-
-## Usage
-
-See the `examples` directory for Jupyter notebooks that demonstrate how to use `pygeoflood`.
+https://passah2o.github.io/pygeoflood/
 
 ## Installation
 `pygeoflood` is not yet available on PyPI. To install from GitHub, use the following command (Python 3.10 or 3.11 is required):
