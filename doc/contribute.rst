@@ -9,7 +9,7 @@ We welcome contributions to **pygeoflood**. Please file bug reports on the `GitH
 Development
 -----------
 
-To obtain an editable version of the code, clone and install in editable mode:
+Clone and install in editable mode:
 
 .. code-block:: bash
 
@@ -17,7 +17,7 @@ To obtain an editable version of the code, clone and install in editable mode:
     cd pygeoflood
     pip install -e .
 
-To submit a pull request, fork the repository and create a new branch with your changes. Then, submit a pull request to the main branch.
+To contribute: fork, create a new branch with your changes, and submit a pull request.
 
 Building the docs
 -----------------
