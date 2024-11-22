@@ -218,6 +218,8 @@ def read_raster(
     # convert nodata to np.nan if dtype is float
     if "float" in profile["dtype"].lower():
         raster[raster == profile["nodata"]] = np.nan
+    # set profile nodata to -9999
+    profile.update(nodata=-9999)
     return raster, profile
 
 
