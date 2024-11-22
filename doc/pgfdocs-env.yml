@@ -2,11 +2,10 @@ name: pgfdocs-env
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.12
   - sphinx
   - nbsphinx
   - furo
-  - libcxx # may be needed for skfmm on mac
   - pip
   - pip:
     - git+https://github.com/passah2o/pygeoflood

@@ -7,7 +7,7 @@ Flood mapping program based on high-resolution terrain analyses.
 https://passah2o.github.io/pygeoflood/
 
 ## Installation
-`pygeoflood` is not yet available on PyPI. To install from GitHub, use the following command (Python 3.10 or 3.11 is required):
+`pygeoflood` is not yet available on PyPI. To install from GitHub, use the following command (Python 3.10, 3.11, or 3.12 is required):
 
 ```bash
 $ pip install git+https://github.com/passah2o/pygeoflood
@@ -30,14 +30,12 @@ $ pip install .
 To obtain an editable installation for local development:
 
 ```bash
-$ conda create -n pygeoflood-env python=3.11
+$ conda create -n pygeoflood-env python=3.12
 $ conda activate pygeoflood-env
 (pygeoflood-env) $ git clone https://github.com/passah2o/pygeoflood
 (pygeoflood-env) $ cd geoflood
 (pygeoflood-env) $ pip install -e .
 ```
-
-[^1]: Instructions for installing `conda`: https://docs.anaconda.com/free/miniconda/#quick-command-line-install.
 
 ## Citing
 

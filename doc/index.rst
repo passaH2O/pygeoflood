@@ -19,7 +19,7 @@ View the source code on GitHub: https://github.com/passah2o/pygeoflood
 Installation
 #############
 
-**pygeoflood** currently supports Python 3.10 and 3.11. We recommend installing with our provided conda environment file. This will install all dependencies and a compatible version of python.
+**pygeoflood** currently supports Python 3.10, 3.11, and 3.12. We recommend installing with our provided conda environment file. This will install all dependencies and a compatible version of python.
 
 .. code-block:: bash
 
