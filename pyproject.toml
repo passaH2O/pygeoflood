@@ -19,7 +19,7 @@ maintainers = [
 ]
 description = "Flood mapping program based on high-resolution terrain analyses"
 readme = "README.md"
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10,<3.13"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -32,7 +32,7 @@ dependencies = [
     "numba",
     "numpy",
     "pandas",
-    "rasterio<1.4",
+    "rasterio",
     "scikit-fmm",
     "scikit-image",
     "scipy",
