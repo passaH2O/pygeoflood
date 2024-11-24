@@ -70,8 +70,8 @@ class PyGeoFlood(object):
     segmented_channel_network_path = t.path_property("segmented_channel_network_path")
     segmented_channel_network_raster_path = t.path_property("segmented_channel_network_raster_path")
     segment_catchments_raster_path = t.path_property("segment_catchments_raster_path")
+    segment_catchments_vector_path = t.path_property("segment_catchments_vector_path")
     river_attributes_path = t.path_property("river_attributes_path")
-    segment_catchments_path = t.path_property("segment_catchments_path")
     catchment_path = t.path_property("catchment_path")
     src_path = t.path_property("src_path")
     streamflow_forecast_path = t.path_property("streamflow_forecast_path")
@@ -163,8 +163,8 @@ class PyGeoFlood(object):
         self.segmented_channel_network_path = f"{default_prefix}_segmented_channel_network.shp"
         self.segmented_channel_network_raster_path = f"{default_prefix}_segmented_channel_network_raster.tif"
         self.segment_catchments_raster_path = f"{default_prefix}_segment_catchments.tif"
+        self.segment_catchments_vector_path = f"{default_prefix}_segment_catchments.shp"
         self.river_attributes_path = f"{default_prefix}_river_attributes.csv"
-        self.segment_catchments_path = f"{default_prefix}_segment_catchments.tif"
         self.catchment_path = f"{default_prefix}_cathcment.shp"
         self.src_path = f"{default_prefix}_src.csv"
         self.flood_stage_path = f"{default_prefix}_flood_stage.csv"
@@ -1881,7 +1881,7 @@ class PyGeoFlood(object):
             file_path=output_segmented_channel_network_raster_path,
         )
 
-        # set segmented channel network catachments path
+        # set segmented channel network catchments path
         if custom_path is None:
             output_segment_catchments_path = self.segment_catchments_raster_path    
         else:
@@ -1902,6 +1902,68 @@ class PyGeoFlood(object):
 
         print(
             f"Segment catchments written to {output_segment_catchments_path}"
+        )
+
+    @t.time_it
+    @t.use_config_defaults
+    def vectorize_segment_catchments(
+        self,
+        custom_segment_catchments_raster: str | PathLike = None,
+        custom_path: str | PathLike = None,
+    ):
+        """
+        Vectorize segment catchments raster.
+
+        Parameters
+        ----------
+        custom_segment_catchments_raster : `str`, `os.PathLike`, optional
+            Custom file path to input segment catchments raster. If not provided default 
+            segment_catchments_raster is used.
+        custom_path : `str`, `os.PathLike`, optional
+            Custom path to save segment catchments vector file. If not provided,
+            segment catchments vector shapefile will be saved in project directory.
+        """
+        if custom_segment_catchments_raster is None:
+            segment_catchments_raster = self.segment_catchments_raster_path
+        else:
+            segment_catchments_raster = custom_segment_catchments_raster
+
+        for input in [custom_segment_catchments_raster]:
+            if input is not None and custom_path is None:
+                raise ValueError(f"A custom path is required when a custom {input} is provided.")
+
+        required_files = [("Segment catchments raster", segment_catchments_raster)]
+        t.check_attributes(required_files, "vectorize_segment_catchments")
+
+        # read segment catchments raster
+        seg_catch, profile = t.read_raster(segment_catchments_raster)
+
+        # vectorize segment catchments, use columns from classic GeoFlood workflow
+        features = list(
+            {"properties": {"HYDROID": int(v)}, "geometry": s}
+            for (s, v) in shapes(
+                seg_catch,
+                connectivity=8,  # avoids isolated single pixel catchments
+                transform=profile["transform"],
+            )
+            if v > 0
+        )
+        segment_catchments_vector = gpd.GeoDataFrame.from_features(
+            features, crs=profile["crs"]
+        )
+        segment_catchments_vector["AreaSqKm"] = segment_catchments_vector.area / 1e6
+
+        # set output vectorized segment catchments path
+        if custom_path is None:
+            output_segment_catchments_vector_path = self.segment_catchments_vector_path    
+        else:
+            output_segment_catchments_vector_path = custom_path
+
+        # write vectorized segment catchments
+        segment_catchments_vector.to_file(output_segment_catchments_vector_path)
+
+        print(
+            f"Segment catchments vector file written to {output_segment_catchments_vector_path}"
         )
 
     @t.time_it
