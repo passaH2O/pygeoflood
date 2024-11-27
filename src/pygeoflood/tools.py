@@ -24,6 +24,7 @@ from scipy.stats.mstats import gmean, mquantiles
 from shapely.geometry import LineString, Point, shape
 from shapely.ops import linemerge, snap, split
 from skimage.graph import route_through_array
+from skimage.measure import label
 from whitebox import WhiteboxTools
 
 warnings.filterwarnings(
@@ -1784,4 +1785,27 @@ def get_inun(hand, seg_catch, df):
         .reshape(seg_catch.shape)
     )
     inun = np.where(catch_h_mapped > hand, catch_h_mapped - hand, np.nan)
+    return inun
+
+def get_c_hand(dem, gage_el, opix):
+
+    # initialize array with nan values
+    inun = np.full(dem.shape, np.nan, dtype=np.float32)
+
+    # initial inun array: 0 if (DEM ≥ gage_el) else (gage_el - DEM)
+    inun = np.where(dem >= (gage_el), 0, (gage_el) - dem)
+
+    # masked inun array: 255 if inun > 0 else 0
+    inun_mask = np.where(inun == 0, 0, 255)
+
+    # label connected regions of inundation
+    regions = label(inun_mask)
+
+    # only keep region containing the ocean pixel
+    inun = np.where(regions == regions[opix], inun, 0)
+
+    # return masked array if fed one
+    if isinstance(dem, np.ma.MaskedArray):
+        inun = np.ma.masked_array(inun, dem.mask)
+
     return inun

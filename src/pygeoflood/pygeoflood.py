@@ -11,8 +11,8 @@ from . import tools as t
 from os import PathLike
 from pathlib import Path
 from rasterio.features import rasterize, shapes
-from rasterio.transform import from_bounds
-from rasterio.warp import transform_bounds,  reproject, calculate_default_transform, Resampling
+from rasterio.transform import from_bounds, rowcol
+from rasterio.warp import transform_bounds, reproject, calculate_default_transform, Resampling
 
 
 class PyGeoFlood(object):
@@ -81,6 +81,7 @@ class PyGeoFlood(object):
     fsm_dephier_path = t.path_property("fsm_dephier_path")
     fsm_labels_path = t.path_property("fsm_labels_path")
     fsm_flowdir_path = t.path_property("fsm_flowdir_path")
+    coastal_inundation_path = t.path_property("coastal_inundation_path")
 
 
 
@@ -176,6 +177,7 @@ class PyGeoFlood(object):
         self.fsm_dephier_path = f"{default_prefix}_fsm_dephier.json"
         self.fsm_labels_path = f"{default_prefix}_fsm_labels.npy"
         self.fsm_flowdir_path = f"{default_prefix}_fsm_flowdir.npy"
+        self.coastal_inundation_path = f"{default_prefix}_coastal_inundation.tif"
 
 
 
@@ -2614,9 +2616,72 @@ class PyGeoFlood(object):
             dst.write(water_depth, 1)
             
         print(f"FSM inundation saved to {fsm_inundation}")
-       
 
+    @t.time_it
+    @t.use_config_defaults
+    def c_hand(
+        self,
+        ocean_coords: tuple[float, float] = None,
+        xy: bool = True,
+        gage_el: float = None,
+        custom_dem: str | PathLike = None,
+        custom_path: str | PathLike = None,
+    ):
+        """
+        Calculate coastal inundation with the c-HAND method.
 
+        Parameters
+        ----------
+        ocean_coords : `tuple`
+            Tuple of coordinates (x, y) of a DEM cell in the ocean. Coordinates should be in the same CRS as the DEM.
+        xy : `bool`, optional
+            If False, ocean_coords are (row, col) of an array rather than (x, y) in a CRS. Default is True.
+        gage_el : `float`, optional
+            Constant water surface elevation to apply to DEM. Units and vertical datum must match DEM.
+        custom_dem : `str`, `os.PathLike`, optional
+            Custom file path to input dem. If not provided default 
+            DEM is used. A custom_path is required when a custom_dem is provided. Intermediary files
+            will be saved to match the name of the input custom_dem and be within the default working folder.
+        custom_path :  `str`, `os.PathLike`, optional
+            Custom path to save the coastal inundation raster. If not provided, coastal inundation raster 
+            will be saved in the project directory with the default name.
+        """
+        if custom_dem is None:
+            dem=self.dem_path
+        else:
+            dem=custom_dem
+            if custom_path is None:
+                raise ValueError("A custom path is required when a custom DEM is provided.")
+
+        t.check_attributes([("DEM", dem)], "c_hand")
+
+        if ocean_coords is None:
+            raise ValueError("ocean_coords must be provided")
+        if gage_el is None:
+            raise ValueError("gage_el must be provided")
+
+        # read original DEM
+        dem, dem_profile = t.read_raster(dem)
+
+        if xy:
+            ocean_coords = rowcol(dem_profile["transform"], *ocean_coords)
+
+        coastal_inun = t.get_c_hand(dem, gage_el, ocean_coords)
+
+        # set file path
+        if custom_path is None:
+            output_coastal_inundation_path = self.coastal_inundation_path    
+        else:
+            output_coastal_inundation_path = f"{custom_path}.tif"
+
+        t.write_raster(
+            raster=coastal_inun,
+            profile=dem_profile,
+            file_path=output_coastal_inundation_path,
+        )
+
+        print(f"Coastal inundation raster written to {output_coastal_inundation_path}")
+        
 
     @t.time_it
     def run_fim_workflow(self):
