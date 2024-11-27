@@ -31,16 +31,13 @@ Alternatively, you can install the package with pip:
 
    pip install git+https://github.com/passah2o/pygeoflood
 
-Examples
-#################
+Example workflows in python
+###########################
 
 .. toctree::
    :maxdepth: 2
 
-.. nbgallery::
-   examples/fim_workflow_combined
-   examples/fim_workflow_indiv_steps
-   examples/c_hand_example.ipynb
+   Example gallery <ex>
 
 .. Getting Started
 .. ###############
