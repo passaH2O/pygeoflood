@@ -65,10 +65,13 @@ API Reference
    pygeoflood API reference <apiref/apiref>
 
 
-.. Acknowledgements
-.. ################
+Acknowledgements
+################
 
+.. toctree::
+   :maxdepth: 1
 
+   Acknowledgements <acknowledgements>
 
 * :ref:`genindex`
 * :ref:`modindex`
