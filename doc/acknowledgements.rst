@@ -9,4 +9,5 @@ PyGeoFlood has been used in projects funded by:
 - NSF Graduate Research Fellowship Program (DGE-2137420)
 - Planet Texas 2050, a research grand challenge at the University of Texas at Austin
 - University of Texas at Austin Cockrell School of Engineering
-- U.S. Department of Energy, Office of Science, Biological and Environmental Research Program under Award Number DE-SC0023216
+
+This material is based upon work supported by the U.S. Department of Energy, Office of Science, Biological and Environmental Research Program under Award Number DE-SC0023216.
