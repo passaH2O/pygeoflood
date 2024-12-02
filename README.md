@@ -8,7 +8,7 @@ https://passah2o.github.io/pygeoflood/
 
 ## Installation
 
-Python 3.10, 3.11, or 3.12 is required:
+We recommend installing `pygeoflood` into a conda environment. Python 3.10, 3.11, or 3.12 is required:
 
 ```bash
 $ pip install pygeoflood
@@ -19,8 +19,6 @@ For the bleeding-edge version, install from GitHub:
 ```bash
 $ pip install git+https://github.com/passah2o/pygeoflood
 ```
-
-We recommend installing `pygeoflood` into a conda environment.
 
 If you plan on running the Fill-Spill-Merge function to estimate pluvial flooding, you must also install a fork of the richdem package using the following commands:
 
