@@ -7,17 +7,20 @@ Flood mapping program based on high-resolution terrain analyses.
 https://passah2o.github.io/pygeoflood/
 
 ## Installation
-`pygeoflood` is not yet available on PyPI. To install from GitHub, use the following command (Python 3.10, 3.11, or 3.12 is required):
+
+Python 3.10, 3.11, or 3.12 is required:
+
+```bash
+$ pip install pygeoflood
+```
+
+For the bleeding-edge version, install from GitHub:
 
 ```bash
 $ pip install git+https://github.com/passah2o/pygeoflood
 ```
 
-We recommend installing `pygeoflood` into a conda environment with the provided environment file:
-
-```bash
-$ conda env create -f pygeoflood-env.yml
-```
+We recommend installing `pygeoflood` into a conda environment.
 
 If you plan on running the Fill-Spill-Merge function to estimate pluvial flooding, you must also install a fork of the richdem package using the following commands:
 
