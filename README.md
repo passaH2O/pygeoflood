@@ -28,14 +28,12 @@ $ cd richdem/wrappers/pyrichdem
 $ pip install .
 ```
 
-To obtain an editable installation for local development:
+For local `pygeoflood` development, intall in editable mode:
 
 ```bash
-$ conda create -n pygeoflood-env python=3.12
-$ conda activate pygeoflood-env
-(pygeoflood-env) $ git clone https://github.com/passah2o/pygeoflood
-(pygeoflood-env) $ cd geoflood
-(pygeoflood-env) $ pip install -e .
+$ git clone https://github.com/passah2o/pygeoflood
+$ cd geoflood
+$ pip install -e .
 ```
 
 ## Citing
