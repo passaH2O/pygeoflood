@@ -1,1 +1,1 @@
-from .pygeoflood import PyGeoFlood, PGF_Config
+from .pygeoflood import pyGeoFlood, PGF_Config
