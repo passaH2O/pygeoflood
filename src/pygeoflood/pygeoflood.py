@@ -15,7 +15,7 @@ from rasterio.transform import from_bounds, rowcol
 from rasterio.warp import transform_bounds, reproject, calculate_default_transform, Resampling
 
 
-class PyGeoFlood(object):
+class pyGeoFlood(object):
     """A class to implement the height above nearest drainage method"""
 
     @property
@@ -233,15 +233,15 @@ class PyGeoFlood(object):
                     attributes[attr] = value.strip('"')
         if "project_dir" not in attributes.keys():
             attributes["project_dir"] = None
-        # create instance of PyGeoFlood with attributes
-        loaded_pgf = PyGeoFlood(
+        # create instance of pyGeoFlood with attributes
+        loaded_pgf = pyGeoFlood(
             dem_path=attributes["dem_path"],
             project_dir=attributes["project_dir"],
         )
         for attr, value in attributes.items():
             if attr != "dem_path" and attr != "project_dir":
                 setattr(loaded_pgf, attr, value)
-        print(f"PyGeoFlood instance created from {file_path}")
+        print(f"pyGeoFlood instance created from {file_path}")
         print("Note: config attribute must be set separately.")
         return loaded_pgf
 
@@ -1176,7 +1176,7 @@ class PyGeoFlood(object):
                 raise ValueError("A custom path is required when a custom_flowline d8_fdr is provided.")
 
         t.check_attributes(
-            [("PyGeoFlood.flowline_path", flowline)],
+            [("pyGeoFlood.flowline_path", flowline)],
             "find_endpoints",
         )
 
@@ -1239,7 +1239,7 @@ class PyGeoFlood(object):
 
         required_files = [
             ("DEM", dem),
-            ("PyGeoFlood.flowline_path", flowline),
+            ("pyGeoFlood.flowline_path", flowline),
         ]
 
         t.check_attributes(required_files, "calculate_binary_hand")
@@ -1306,7 +1306,7 @@ class PyGeoFlood(object):
                 raise ValueError(f"A custom path is required when a custom_flowline is provided.")
             
         t.check_attributes(
-            [("PyGeoFlood.custom_flowline_path", flowline)],
+            [("pyGeoFlood.custom_flowline_path", flowline)],
             "rasterize_custom_flowline",
         )
 
@@ -1448,7 +1448,7 @@ class PyGeoFlood(object):
                 if custom_path is None:
                     raise ValueError(f"A custom path is required when a custom_flowline is provided.")
 
-            required_files = [("PyGeoFlood.flowline_path", flowline)]
+            required_files = [("pyGeoFlood.flowline_path", flowline)]
             t.check_attributes(required_files, "extract_channel_network")
 
             # set channel network raster and vectorpath
@@ -2077,7 +2077,7 @@ class PyGeoFlood(object):
             ("DEM", dem),
             ("Segmented channel network vector",segmented_channel_network,),
             ("Channel network segment catchments",segment_catchment_raster,),
-            ("PyGeoFlood.catchment_path", catchments),
+            ("pyGeoFlood.catchment_path", catchments),
             ("HAND raster", hand),
         ]
 
@@ -2164,7 +2164,7 @@ class PyGeoFlood(object):
         """
         Calculate flood stage for each segment of the channel network.
         Forecasted streamflow values for each COMID (feature ID) must be set
-        in `PyGeoFlood.streamflow_forecast_path` before running if custom_Q is not set.
+        in `pyGeoFlood.streamflow_forecast_path` before running if custom_Q is not set.
         If the streamflow forecast is a netCDF file it must be in NWM format
         (in xarray: 'streamflow' variable with a "feature_id" or "COMID" dim/coord).
         If the streamflow forecast is a CSV file, it must have columns
@@ -2205,7 +2205,7 @@ class PyGeoFlood(object):
         required_files = [
             ("Synthetic rating curves", src),
             (
-                "PyGeoFlood.streamflow_forecast_path",
+                "pyGeoFlood.streamflow_forecast_path",
                 streamflow_forcast,
             ),
         ]
@@ -2686,7 +2686,7 @@ class PyGeoFlood(object):
     @t.time_it
     def run_fim_workflow(self):
         """
-        Run the full PyGeoFlood workflow.
+        Run the full pyGeoFlood workflow.
         """
         self.apply_nonlinear_filter()
         self.calculate_slope()
@@ -2712,11 +2712,11 @@ class PyGeoFlood(object):
         self.inundate()
 
 
-# get dictionary of PyGeoFlood methods and their parameters
+# get dictionary of pyGeoFlood methods and their parameters
 pgf_methods = [
     method
-    for method in dir(PyGeoFlood)
-    if inspect.isfunction(getattr(PyGeoFlood, method))
+    for method in dir(pyGeoFlood)
+    if inspect.isfunction(getattr(pyGeoFlood, method))
     and not method.startswith("__")
 ]
 pgf_params = {}
@@ -2724,7 +2724,7 @@ for method in pgf_methods:
     pgf_params[method] = [
         param
         for param in inspect.signature(
-            getattr(PyGeoFlood, method)
+            getattr(pyGeoFlood, method)
         ).parameters.keys()
         if param != "self"
     ]

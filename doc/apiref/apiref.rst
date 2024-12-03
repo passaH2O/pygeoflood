@@ -1,7 +1,7 @@
 pygeoflood
 ==========
 
-.. autoclass:: src.pygeoflood.PyGeoFlood
+.. autoclass:: src.pygeoflood.pyGeoFlood
     :members:
     
     
