@@ -188,7 +188,9 @@ def check_attributes(
 
     for name, path in attr_list:
         if path is None or not Path(path).is_file():
-            raise ValueError(f"{name} invalid. {name} must be created before running {method}")
+            raise ValueError(
+                f"{name} invalid. {name} must be created before running {method}"
+            )
             # raise ValueError(f"{name} must be created before running {method}")
 
 
@@ -215,12 +217,11 @@ def read_raster(
         raster = ds.read(1)
         profile = ds.profile
         msg = "Pixel width must be equal to pixel height"
-        assert round(abs(ds.transform.a), 4) == round(abs(ds.transform.e), 4), msg
+        assert abs(abs(ds.transform.a) - abs(ds.transform.e)) < 0.01, msg
     # convert nodata to np.nan if dtype is float
     if "float" in profile["dtype"].lower():
         raster[raster == profile["nodata"]] = np.nan
-    # set profile nodata to -9999
-    profile.update(nodata=-9999)
+    profile.update(nodata=-32768)
     return raster, profile
 
 
@@ -1036,7 +1037,7 @@ def get_channel_heads(
         channel_head_median_dist,
         max_channel_heads,
     )
-    print(f'number of channel heads: {len(channel_heads)}')
+    print(f"number of channel heads: {len(channel_heads)}")
     channel_heads = np.transpose(channel_heads)
     ch_rows = channel_heads[0]
     ch_cols = channel_heads[1]
@@ -1096,6 +1097,11 @@ def jit_channel_heads(
 
 
 def get_endpoints(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    
+    # if all geometries are multilinestrings, explode to access coords
+    if all(gdf.geometry.geom_type == "MultiLineString"):
+        gdf = gdf.explode()
+
     # Extract start and end points directly into the GeoDataFrame
     gdf["START_X"] = gdf.geometry.apply(lambda geom: geom.coords[0][0])
     gdf["START_Y"] = gdf.geometry.apply(lambda geom: geom.coords[0][1])
@@ -1679,10 +1685,19 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
         if streamflow_forecast_path.suffix in [".nc", ".comp"]:
             with xr.open_dataset(streamflow_forecast_path) as ds:
                 reqd_cols_provided = "streamflow" in ds.variables and (
-                    "COMID" in ds.variables or "feature_id" in ds.variables
+                    "COMID" in ds.variables
+                    or "feature_id" in ds.variables
+                    or "station_id" in ds.variables
                 )
                 if reqd_cols_provided:
-                    comid = "COMID" if "COMID" in ds.variables else "feature_id"
+                    if "COMID" in ds.variables:
+                        comid = "COMID"
+                    elif "feature_id" in ds.variables:
+                        comid = "feature_id"
+                    elif "station_id" in ds.variables:
+                        comid = "station_id"
+                    else:
+                        comid = None
                     df = ds.streamflow[ds[comid].isin(comids)].to_dataframe()
                     # keep only Discharge_cms and COMID columns
                     df["COMID"] = df.index
@@ -1691,15 +1706,24 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
                     df = df[["COMID", "Discharge_cms"]]
                 else:
                     raise ValueError(
-                        "NetCDF file must have COMID (or feature_id) and streamflow variables"
+                        "NetCDF file must have variables named streamflow and COMID (or feature_id or station_id)"
                     )
         elif streamflow_forecast_path.suffix == ".csv":
             df = pd.read_csv(streamflow_forecast_path)
             reqd_cols_provided = "streamflow" in df.columns and (
-                "COMID" in df.columns or "feature_id" in df.columns
+                "COMID" in df.columns
+                or "feature_id" in df.columns
+                or "station_id" in df.columns
             )
             if reqd_cols_provided:
-                comid = "COMID" if "COMID" in df.columns else "feature_id"
+                if "COMID" in df.columns:
+                    comid = "COMID"
+                elif "feature_id" in df.columns:
+                    comid = "feature_id"
+                elif "station_id" in df.columns:
+                    comid = "station_id"
+                else:
+                    comid = None
                 # filter forecast table to only COMIDS of interest
                 df = df[df[comid].isin(src["COMID"].unique())]
                 # keep only streamflow and COMID columns
@@ -1709,21 +1733,24 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
                 df = df[["COMID", "Discharge_cms"]]
             else:
                 raise ValueError(
-                    "CSV file must have COMID (or feature_id) and streamflow column headers"
+                    "CSV file must have streamflow and COMID (or feature_id or station_id) column headers"
                 )
     data = []
     for comid in comids:
         # assign constant streamflow to all segments if custom_Q is provided
         if custom_Q is not None:
             q = custom_Q
+        df_comid = df[df["COMID"] == comid]
+        if df_comid.empty:
+            continue
         else:
-            q = df[df["COMID"] == comid]["Discharge_cms"].values[0]
+            q = df_comid["Discharge_cms"].values[0]
         for hydroid in src["HYDROID"].unique():
             q_lookup = src.loc[src["HYDROID"] == hydroid]["Discharge_cms"]
             h_lookup = src.loc[src["HYDROID"] == hydroid]["Stage_m"]
             # if q is less than q_lookup[0] h = 0
-            # if q is greater than q_lookup[-1] h = -9999
-            h = np.interp(q, q_lookup, h_lookup, left=0, right=-9999)
+            # if q is greater than q_lookup[-1] h = -32768 (nodata)
+            h = np.interp(q, q_lookup, h_lookup, left=0, right=-32768)
             data.append(
                 {
                     "HYDROID": hydroid,
@@ -1770,7 +1797,7 @@ def jit_inun(hand, seg_catch, hydroids, stage_m):
             if hydroid_idx != -1:
                 h = stage_m[hydroid_idx]
             else:
-                h = -9999
+                h = -32768
             if h > hand_h:
                 inun[i, j] = h - hand_h
     return inun
@@ -1786,6 +1813,7 @@ def get_inun(hand, seg_catch, df):
     )
     inun = np.where(catch_h_mapped > hand, catch_h_mapped - hand, np.nan)
     return inun
+
 
 def get_c_hand(dem, gage_el, opix):
 
