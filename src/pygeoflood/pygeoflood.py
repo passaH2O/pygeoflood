@@ -2163,12 +2163,13 @@ class pyGeoFlood(object):
     ):
         """
         Calculate flood stage for each segment of the channel network.
-        Forecasted streamflow values for each COMID (feature ID) must be set
-        in `pyGeoFlood.streamflow_forecast_path` before running if custom_Q is not set.
-        If the streamflow forecast is a netCDF file it must be in NWM format
-        (in xarray: 'streamflow' variable with a "feature_id" or "COMID" dim/coord).
-        If the streamflow forecast is a CSV file, it must have columns
-        "feature_id" (or "COMID") and "streamflow".
+
+        Set `pyGeoFlood.streamflow_forecast_path` before running if custom_Q is not used.
+        The streamflow forecast file can be a netCDF file or a CSV file.
+        If netCDF, it must be in NWM format with xarray variables named:
+        streamflow and (COMID or feature_id or station_id).
+        If CSV, it must have columns named:
+        streamflow and (COMID or feature_id or station_id).
 
         Parameters
         ----------
@@ -2303,7 +2304,7 @@ class pyGeoFlood(object):
         inundated = t.jit_inun(hand, seg_catch, hydroids, stage_m)
 
         # set nan values to 0
-        inundated[np.isnan(inundated)] = -9999
+        inundated[np.isnan(inundated)] = -32768
 
         # set file path
         if custom_path is None:
@@ -2391,7 +2392,7 @@ class pyGeoFlood(object):
         )
         # read original DEM
         dem, dem_profile = t.read_raster(dem)
-        dem = rd.rdarray(dem,no_data=-9999, geotransform=dem_profile['transform']).astype(np.double)
+        dem = rd.rdarray(dem,no_data=-32768, geotransform=dem_profile['transform']).astype(np.double)
         dem[np.isnan(dem)] = dem_profile['nodata']
         def get_bounds_from_profile(profile):
             transform = profile['transform']
@@ -2544,13 +2545,13 @@ class pyGeoFlood(object):
 
             # create water depth array
             water_depth = rd.rdarray(depth,
-                               no_data=-9999, 
+                               no_data=-32768, 
                                geotransform=depth_profile['transform']).astype(np.double)
         
         else:
             # create a water depth array of 0s
             water_depth = rd.rdarray(np.zeros(dem.shape), 
-                                     no_data=-9999, 
+                                     no_data=-32768, 
                                      geotransform=dem_profile['transform'])
 
             # #set the water depth
@@ -2593,9 +2594,9 @@ class pyGeoFlood(object):
 
         labels=np.load(fsm_labels)
         flowdirs=np.load(fsm_flowdir)
-        labels = rd.rdarray(labels,no_data=-9999, 
+        labels = rd.rdarray(labels,no_data=-32768, 
                             geotransform=dem_profile['transform'])
-        flowdirs = rd.rdarray(flowdirs,no_data=-9999,
+        flowdirs = rd.rdarray(flowdirs,no_data=-32768,
                                geotransform=dem_profile['transform'])
         print('running')
         # #run FSM (the result is placed in the same water_depth array):
