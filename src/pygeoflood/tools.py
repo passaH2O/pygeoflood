@@ -1740,11 +1740,12 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
         # assign constant streamflow to all segments if custom_Q is provided
         if custom_Q is not None:
             q = custom_Q
-        df_comid = df[df["COMID"] == comid]
-        if df_comid.empty:
-            continue
         else:
-            q = df_comid["Discharge_cms"].values[0]
+            df_comid = df[df["COMID"] == comid]
+            if df_comid.empty:
+                continue
+            else:
+                q = df_comid["Discharge_cms"].values[0]
         for hydroid in src["HYDROID"].unique():
             q_lookup = src.loc[src["HYDROID"] == hydroid]["Discharge_cms"]
             h_lookup = src.loc[src["HYDROID"] == hydroid]["Stage_m"]
