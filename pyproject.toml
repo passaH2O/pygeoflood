@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pygeoflood"
-version = "0.0.3a1"
+version = "0.0.3a2"
 authors = [
     { name = "Paola Passalacqua", email = "paola@austin.utexas.edu" },
     { name = "Xing Zheng", email = "zhengxingwhu@gmail.com" },
