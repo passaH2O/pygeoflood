@@ -1746,7 +1746,9 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
                 continue
             else:
                 q = df_comid["Discharge_cms"].values[0]
-        for hydroid in src["HYDROID"].unique():
+        # get hydroids associated with comid
+        hydroids = src.loc[src["COMID"] == comid]["HYDROID"].unique()
+        for hydroid in hydroids:
             q_lookup = src.loc[src["HYDROID"] == hydroid]["Discharge_cms"]
             h_lookup = src.loc[src["HYDROID"] == hydroid]["Stage_m"]
             # if q is less than q_lookup[0] h = 0
@@ -1761,7 +1763,9 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
                 }
             )
 
-    return df_float64_to_float32(pd.DataFrame(data))
+    df_stage = pd.DataFrame(data)
+    df_stage = df_stage.sort_values(by="HYDROID")
+    return df_float64_to_float32(df_stage)
 
 
 @jit(nopython=True)
