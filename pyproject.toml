@@ -39,6 +39,8 @@ dependencies = [
     "whitebox",
     "xarray",
     "fiona",
+    "pytest",
+    "pytest_cov"
 ]
 
 [project.urls]
