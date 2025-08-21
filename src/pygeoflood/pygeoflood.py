@@ -13,7 +13,7 @@ from pathlib import Path
 from rasterio.features import rasterize, shapes
 from rasterio.transform import from_bounds, rowcol
 from rasterio.warp import transform_bounds, reproject, calculate_default_transform, Resampling
-
+from types import SimpleNamespace
 
 class pyGeoFlood(object):
     """A class to implement the height above nearest drainage method"""
@@ -273,7 +273,7 @@ class pyGeoFlood(object):
             Filter method to apply to DEM. Options include:
             - "PeronaMalik1": TODO: detailed description
             - "PeronaMalik2": TODO: detailed description
-            - "Gaussian": Smoothes DEM with a Gaussian filter.
+            - "Gaussian": TODO: Gaussian not currently set up in tools.py Smoothes DEM with a Gaussian filter.
             Default is "PeronaMalik2".
         smoothing_quantile : `float`, optional
             Quantile for calculating Perona-Malik nonlinear filter
@@ -318,7 +318,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_filtered_dem_path = self.filtered_dem_path
         else:
-            output_filtered_dem_path = f"{custom_path}.tif"
+            output_filtered_dem_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # write filtered DEM
         t.write_raster(
@@ -372,7 +372,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_slope_path = self.slope_path
         else:
-            output_slope_path = f"{custom_path}.tif"
+            output_slope_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # write slope array
         t.write_raster(
@@ -434,7 +434,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_curvature_path = self.curvature_path
         else:
-            output_curvature_path = f"{custom_path}.tif"
+            output_curvature_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # write curvature array
         t.write_raster(
@@ -484,7 +484,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_filled_path = self.filled_path
         else:
-            output_filled_path = f"{custom_path}.tif"
+            output_filled_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -543,7 +543,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_mfd_fac_path = self.mfd_fac_path
         else:
-            output_mfd_fac_path = f"{custom_path}.tif"
+            output_mfd_fac_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -618,7 +618,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_d8_fdr_path = self.d8_fdr_path
         else:
-            output_d8_fdr_path = f"{custom_path}.tif"
+            output_d8_fdr_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -696,7 +696,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_outlets_path = self.outlets_path
         else:
-            output_outlets_path = f"{custom_path}.tif"
+            output_outlets_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
 
 
@@ -749,7 +749,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_basins_path = self.basins_path
         else:
-            output_basins_path = f"{custom_path}.tif"
+            output_basins_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
 
@@ -872,7 +872,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_combined_skeleton_path = self.combined_skeleton_path
         else:
-            output_combined_skeleton_path = f"{custom_path}.tif"
+            output_combined_skeleton_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         t.write_raster(
             raster=combined_skeleton,
@@ -935,7 +935,7 @@ class pyGeoFlood(object):
         normalize_curvature : `bool`, optional
             Whether to normalize curvature. Default is True.
         local_cost_min : `float`, optional
-            Minimum local cost. Default is None.
+            Minimum local cost. Default is None. TODO: what are some expected values that can be used here?
         """
         if custom_curvature is None:
             curvature = self.curvature_path
@@ -1048,7 +1048,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_geodesic_distance_path = self.geodesic_distance_path
         else:
-            output_geodesic_distance_path = f"{custom_path}.tif"
+            output_geodesic_distance_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
         # write geodesic distance
         t.write_raster(
             raster=geodesic_distance,
@@ -1256,7 +1256,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_binary_hand_path = self.binary_hand_path    
         else:
-            output_binary_hand_path = f"{custom_path}.tif"
+            output_binary_hand_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # write binary hand
         t.write_raster(
@@ -1637,7 +1637,7 @@ class pyGeoFlood(object):
                 output_channel_network_raster_path = self.channel_network_raster_path
                 output_channel_network_vector_path = self.channel_network_path
             else:
-                output_channel_network_raster_path = f"{custom_path}.tif"
+                output_channel_network_raster_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
                 output_channel_network_vector_path = f"{custom_path}.{vector_extension}"
 
 
@@ -1727,7 +1727,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_hand_path = self.hand_path    
         else:
-            output_hand_path = f"{custom_path}.tif"
+            output_hand_path = custom_path if str(custom_path).endswith('.tif') else f"{custom_path}.tif"
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -2366,10 +2366,7 @@ class pyGeoFlood(object):
             import richdem as rd
             from _richdem.depression_hierarchy import Depression
         except ImportError as e:
-            print(f"Could not import richdem! to install follow the following commands:")
-            print("git clone https://github.com/mdp0023/richdem.git richdem")
-            print("cd richdem/wrappers/pyrichdem")
-            print("pip install .")
+            print(f"Could not import richdem!")
         if custom_dem is None:
             dem = self.dem_path
             fsm_inundation = self.fsm_inundation_path
@@ -2436,6 +2433,9 @@ class pyGeoFlood(object):
             for key, value in data.items():
                 setattr(instance, key, value)  # Set each attribute on the instance
             return instance
+        
+        # def dict_to_instance(data):
+        #     return SimpleNamespace(**data)
 
         # determine depth
         if gridded_depth is not None:
@@ -2564,14 +2564,15 @@ class pyGeoFlood(object):
         if not files_exist or overwrite_dephier:
             print('Calculating depheir')
             # Get a simple labels array indicating all the edge cells belong to the ocean
+            print(dem.shape)
             labels = rd.get_new_depression_hierarchy_labels(dem.shape)
-
+        
             # Generate the Depression Hierarchy
             dephier, flowdirs = rd.get_depression_hierarchy(dem, labels)
 
             # convert depression data to list of dictioanry
             depression_data = [extract_depression_attributes(dep) for dep in dephier]
-
+            
             # SAVE FILES
             # Save depression dictioanry to json file
             with open(fsm_dephier, 'w') as f:

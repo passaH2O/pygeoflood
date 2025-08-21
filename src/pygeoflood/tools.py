@@ -878,7 +878,7 @@ def get_skeleton(
 
 
 @jit(nopython=True, parallel=True)
-def get_fmm_points(
+def get_fmm_points( # pragma: no cover
     basins,
     outlets,
     basin_elements,
@@ -1045,7 +1045,7 @@ def get_channel_heads(
 
 
 @jit(nopython=True)
-def jit_channel_heads(
+def jit_channel_heads( # pragma: no cover
     labeled,
     skeleton_gridded_array,
     geodesic_distance,
@@ -1118,7 +1118,7 @@ def get_endpoints(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 @jit(nopython=True, parallel=True)
-def jit_binary_hand(
+def jit_binary_hand( # pragma: no cover
     dem: np.ndarray,
     flowline_raster: np.ndarray,
     nodata: float,
@@ -1567,7 +1567,7 @@ def get_river_attributes(
 
 
 @jit(nopython=True, parallel=True)
-def process_cells(
+def process_cells(# pragma: no cover
     hand,
     segment_catchments,
     slope,
@@ -1769,7 +1769,9 @@ def get_flood_stage(src, streamflow_forecast_path, custom_Q):
 
 
 @jit(nopython=True)
-def binary_search(arr, x):
+def binary_search(# pragma: no cover
+                  arr, 
+                  x):
     """
     Perform binary search of sorted array arr for x.
     Return the index of x in arr if present, else -1.
@@ -1791,7 +1793,11 @@ def binary_search(arr, x):
 
 
 @jit(nopython=True, parallel=True)
-def jit_inun(hand, seg_catch, hydroids, stage_m):
+def jit_inun( # pragma: no cover
+             hand, 
+             seg_catch, 
+             hydroids, 
+             stage_m):
     inun = np.empty_like(hand, dtype=np.float32)
     inun.fill(np.nan)
     for i in prange(hand.shape[0]):
