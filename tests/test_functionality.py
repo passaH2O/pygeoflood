@@ -16,8 +16,6 @@ from pygeoflood import pyGeoFlood
 import shutil
 
 
-
-
 # set input data paths
 data_path = os.path.join(os.path.dirname(__file__), "test_data", "OC1mTest")
 data_path_inputs =  os.path.join(os.path.dirname(__file__), "test_data", "OC1mTest_inputs")
