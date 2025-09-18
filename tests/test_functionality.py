@@ -734,14 +734,14 @@ class TestPyGeoFlood_c_hand(baseTestPyGeoFlood):
         self.validate_raster_file(pgf, pgf.coastal_inundation_path, "C_HAND")
         
         
-@pytest.fixture(scope="session", autouse=True)
-def cleanup_test_data():
-    yield  # Run tests first
-    # Remove created data files to reduce the number of files being stored in the testing suite
-    for fname in os.listdir(data_path):
-        fpath = os.path.join(data_path, fname)
-        if os.path.isfile(fpath):
-            os.remove(fpath)
+# @pytest.fixture(scope="session", autouse=True)
+# def cleanup_test_data():
+#     yield  # Run tests first
+#     # Remove created data files to reduce the number of files being stored in the testing suite
+#     for fname in os.listdir(data_path):
+#         fpath = os.path.join(data_path, fname)
+#         if os.path.isfile(fpath):
+#             os.remove(fpath)
 
 
 
