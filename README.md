@@ -28,12 +28,19 @@ $ cd richdem/wrappers/pyrichdem
 $ pip install .
 ```
 
-For local `pygeoflood` development, intall in editable mode:
+For local `pygeoflood` development, install in editable mode:
 
 ```bash
 $ git clone https://github.com/passah2o/pygeoflood
-$ cd geoflood
+$ cd pygeoflood
 $ pip install -e .
+```
+
+To run the test suite:
+
+```bash
+$ pip install pytest
+$ pytest tests/test_functionality.py -v
 ```
 
 ## Citing
