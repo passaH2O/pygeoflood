@@ -166,3 +166,7 @@ preisser_testing/
 
 # ignore generated sphinx docs
 doc/_build
+
+# ignore the intermediate testing data
+tests/test_data/OC1mTest/*
+!tests/test_data/OC1mTest/.gitkeep
