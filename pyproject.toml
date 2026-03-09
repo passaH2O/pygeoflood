@@ -31,6 +31,7 @@ dependencies = [
     "matplotlib",
     "numba",
     "numpy",
+    "netcdf4",
     "pandas",
     "rasterio",
     "scikit-fmm",
