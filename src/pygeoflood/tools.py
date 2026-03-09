@@ -1625,7 +1625,7 @@ def catchhydrogeo(
 
     data = []
     for i in range(len(hydroids)):
-        hydroid = int(hydroids[i])
+        hydroid = int(hydroids[i].flat[0])
         for h_idx in range(len(heights)):
             row = {
                 "HYDROID": hydroid,
