@@ -21,6 +21,7 @@ data_path = os.path.join(os.path.dirname(__file__), "test_data", "OC1mTest")
 data_path_inputs =  os.path.join(os.path.dirname(__file__), "test_data", "OC1mTest_inputs")
 # Copy the input datasets
 # Copy all files from data_path_inputs to data_path
+os.makedirs(data_path, exist_ok=True)
 for fname in os.listdir(data_path_inputs):
     src = os.path.join(data_path_inputs, fname)
     dst = os.path.join(data_path, fname)
