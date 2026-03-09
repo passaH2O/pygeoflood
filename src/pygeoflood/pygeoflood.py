@@ -2365,11 +2365,13 @@ class pyGeoFlood(object):
         try:
             import richdem as rd
             from _richdem.depression_hierarchy import Depression
-        except ImportError as e:
-            print(f"Could not import richdem! to install follow the following commands:")
-            print("git clone https://github.com/mdp0023/richdem.git richdem")
-            print("cd richdem/wrappers/pyrichdem")
-            print("pip install .")
+        except ImportError:
+            raise ImportError(
+                "richdem is required for fill_spill_merge. Install with:\n"
+                "git clone https://github.com/mdp0023/richdem.git richdem\n"
+                "cd richdem/wrappers/pyrichdem\n"
+                "pip install ."
+            )
         if custom_dem is None:
             dem = self.dem_path
             fsm_inundation = self.fsm_inundation_path
