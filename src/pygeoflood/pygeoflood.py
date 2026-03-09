@@ -318,7 +318,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_filtered_dem_path = self.filtered_dem_path
         else:
-            output_filtered_dem_path = f"{custom_path}.tif"
+            output_filtered_dem_path = Path(custom_path).with_suffix('.tif')
 
         # write filtered DEM
         t.write_raster(
@@ -372,7 +372,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_slope_path = self.slope_path
         else:
-            output_slope_path = f"{custom_path}.tif"
+            output_slope_path = Path(custom_path).with_suffix('.tif')
 
         # write slope array
         t.write_raster(
@@ -434,7 +434,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_curvature_path = self.curvature_path
         else:
-            output_curvature_path = f"{custom_path}.tif"
+            output_curvature_path = Path(custom_path).with_suffix('.tif')
 
         # write curvature array
         t.write_raster(
@@ -484,7 +484,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_filled_path = self.filled_path
         else:
-            output_filled_path = f"{custom_path}.tif"
+            output_filled_path = Path(custom_path).with_suffix('.tif')
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -543,7 +543,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_mfd_fac_path = self.mfd_fac_path
         else:
-            output_mfd_fac_path = f"{custom_path}.tif"
+            output_mfd_fac_path = Path(custom_path).with_suffix('.tif')
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -618,7 +618,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_d8_fdr_path = self.d8_fdr_path
         else:
-            output_d8_fdr_path = f"{custom_path}.tif"
+            output_d8_fdr_path = Path(custom_path).with_suffix('.tif')
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -696,7 +696,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_outlets_path = self.outlets_path
         else:
-            output_outlets_path = f"{custom_path}.tif"
+            output_outlets_path = Path(custom_path).with_suffix('.tif')
 
 
 
@@ -749,7 +749,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_basins_path = self.basins_path
         else:
-            output_basins_path = f"{custom_path}.tif"
+            output_basins_path = Path(custom_path).with_suffix('.tif')
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
 
@@ -872,7 +872,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_combined_skeleton_path = self.combined_skeleton_path
         else:
-            output_combined_skeleton_path = f"{custom_path}.tif"
+            output_combined_skeleton_path = Path(custom_path).with_suffix('.tif')
 
         t.write_raster(
             raster=combined_skeleton,
@@ -1048,7 +1048,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_geodesic_distance_path = self.geodesic_distance_path
         else:
-            output_geodesic_distance_path = f"{custom_path}.tif"
+            output_geodesic_distance_path = Path(custom_path).with_suffix('.tif')
         # write geodesic distance
         t.write_raster(
             raster=geodesic_distance,
@@ -1135,7 +1135,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_channel_heads_path = self.channel_heads_path    
         else:
-            output_channel_heads_path = f"{custom_path}.{vector_extension}"
+            output_channel_heads_path = Path(custom_path).with_suffix(f'.{vector_extension}')
         # write channel heads points shapefile
         t.write_vector_points(
             rows=ch_rows,
@@ -1187,7 +1187,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_endpoints_path = self.endpoints_path    
         else:
-            output_endpoints_path = f"{custom_path}.csv"
+            output_endpoints_path = Path(custom_path).with_suffix('.csv')
 
         # write endpoints csv
         endpoints.to_csv(output_endpoints_path, index=False)
@@ -1256,7 +1256,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_binary_hand_path = self.binary_hand_path    
         else:
-            output_binary_hand_path = f"{custom_path}.tif"
+            output_binary_hand_path = Path(custom_path).with_suffix('.tif')
 
         # write binary hand
         t.write_raster(
@@ -1340,7 +1340,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_custom_flowline_raster_path   = self.custom_flowline_raster_path    
         else:
-            output_custom_flowline_raster_path = f"{custom_path}.tif"
+            output_custom_flowline_raster_path = Path(custom_path).with_suffix('.tif')
 
         # write custom flowline raster
         out_profile = dem_profile.copy()
@@ -1456,8 +1456,8 @@ class pyGeoFlood(object):
                 output_channel_network_raster_path = self.channel_network_raster_path
                 output_channel_network_vector_path = self.channel_network_path
             else:
-                output_channel_network_raster_path = f"{custom_path}.tif"
-                output_channel_network_vector_path = f"{custom_path}.{vector_extension}"
+                output_channel_network_raster_path = Path(custom_path).with_suffix('.tif')
+                output_channel_network_vector_path = Path(custom_path).with_suffix(f'.{vector_extension}')
 
             _, dem_profile = t.read_raster(self.dem_path)
             out_profile = dem_profile.copy()
@@ -1637,8 +1637,8 @@ class pyGeoFlood(object):
                 output_channel_network_raster_path = self.channel_network_raster_path
                 output_channel_network_vector_path = self.channel_network_path
             else:
-                output_channel_network_raster_path = f"{custom_path}.tif"
-                output_channel_network_vector_path = f"{custom_path}.{vector_extension}"
+                output_channel_network_raster_path = Path(custom_path).with_suffix('.tif')
+                output_channel_network_vector_path = Path(custom_path).with_suffix(f'.{vector_extension}')
 
 
             out_profile = fac_profile.copy()
@@ -1727,7 +1727,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_hand_path = self.hand_path    
         else:
-            output_hand_path = f"{custom_path}.tif"
+            output_hand_path = Path(custom_path).with_suffix('.tif')
 
         # get instance of WhiteboxTools
         wbt = t.get_WhiteboxTools()
@@ -1799,7 +1799,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_segmented_channel_network_path = self.segmented_channel_network_path    
         else:
-            output_segmented_channel_network_path = f"{custom_path}.{vector_extension}"
+            output_segmented_channel_network_path = Path(custom_path).with_suffix(f'.{vector_extension}')
 
         out_gdf.to_file(output_segmented_channel_network_path)
 
@@ -1887,7 +1887,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_segment_catchments_path = self.segment_catchments_raster_path    
         else:
-            output_segment_catchments_path = f"{custom_path}.tif"
+            output_segment_catchments_path = Path(custom_path).with_suffix('.tif')
 
 
         # get instance of WhiteboxTools
@@ -2147,7 +2147,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_src_path = self.src_path    
         else:
-            output_src_path = f"{custom_path}.csv"
+            output_src_path = Path(custom_path).with_suffix('.csv')
 
         src_df.to_csv(output_src_path, index=False)
         print(f"Synthetic rating curves written to {output_src_path}")
@@ -2234,7 +2234,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_flood_stage_depth_path = self.flood_stage_path    
         else:
-            output_flood_stage_depth_path = f"{custom_path}.csv"
+            output_flood_stage_depth_path = Path(custom_path).with_suffix('.csv')
 
         out_df.to_csv(output_flood_stage_depth_path, index=False)
         print(f"Flood stages written to {output_flood_stage_depth_path}")
@@ -2310,7 +2310,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_fim_path = self.fim_path    
         else:
-            output_fim_path = f"{custom_path}.tif"
+            output_fim_path = Path(custom_path).with_suffix('.tif')
 
 
         out_profile = profile.copy()
@@ -2673,7 +2673,7 @@ class pyGeoFlood(object):
         if custom_path is None:
             output_coastal_inundation_path = self.coastal_inundation_path    
         else:
-            output_coastal_inundation_path = f"{custom_path}.tif"
+            output_coastal_inundation_path = Path(custom_path).with_suffix('.tif')
 
         t.write_raster(
             raster=coastal_inun,
