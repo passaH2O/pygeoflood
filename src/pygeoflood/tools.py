@@ -536,13 +536,13 @@ def get_combined_cost(
     combined_cost : `numpy.ndarray`
         Combined cost array.
     """
-    cost_repciprocal = sum(
+    cost_reciprocal = sum(
         weight * array for weight, array in weights_arrays if array is not None
     )
     if return_reciprocal:
-        return cost_repciprocal
+        return cost_reciprocal
     else:
-        return 1 / cost_repciprocal
+        return 1 / cost_reciprocal
 
 
 # Gaussian Filter

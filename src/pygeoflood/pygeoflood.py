@@ -1173,7 +1173,7 @@ class pyGeoFlood(object):
         else:
             flowline = custom_flowline
             if custom_path is None:
-                raise ValueError("A custom path is required when a custom_flowline d8_fdr is provided.")
+                raise ValueError("A custom path is required when a custom_flowline is provided.")
 
         t.check_attributes(
             [("pyGeoFlood.flowline_path", flowline)],
@@ -1537,7 +1537,7 @@ class pyGeoFlood(object):
             curvature[(curvature < -10) | (curvature > 10)] = np.nan
             curvature = t.minmax_scale(curvature)
 
-            binary_hand, _ = t.read_raster(self.binary_hand_path)
+            binary_hand, _ = t.read_raster(binary_hand)
 
             ### get cost surface array
             # use custom (likely NHD HR) flowline, NHD MR flowlines (binary HAND),
@@ -1646,7 +1646,7 @@ class pyGeoFlood(object):
             t.write_raster(
                 raster=channel_network,
                 profile=out_profile,
-                file_path=self.channel_network_raster_path,
+                file_path=output_channel_network_raster_path,
             )
             print(
                 f"Channel network raster written to {output_channel_network_raster_path}"
@@ -1657,7 +1657,7 @@ class pyGeoFlood(object):
                 keys=stream_keys,
                 profile=fac_profile,
                 dataset_name="ChannelNetwork",
-                file_path=self.channel_network_path,
+                file_path=output_channel_network_vector_path,
             )
             print(
                 f"Channel network vector written to {output_channel_network_vector_path}"
@@ -1774,7 +1774,7 @@ class pyGeoFlood(object):
         else:
             channel_network_vector = custom_channel_network_vector
             if custom_path is None:
-                raise ValueError(f"A custom path is required when a custom custom_channel_network_vector is provided.")
+                raise ValueError(f"A custom path is required when a custom_channel_network_vector is provided.")
 
         check_files = [
             ("Channel network vector", channel_network_vector),
