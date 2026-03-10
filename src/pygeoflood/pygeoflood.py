@@ -166,7 +166,7 @@ class pyGeoFlood(object):
         self.segment_catchments_raster_path = f"{default_prefix}_segment_catchments.tif"
         self.segment_catchments_vector_path = f"{default_prefix}_segment_catchments.shp"
         self.river_attributes_path = f"{default_prefix}_river_attributes.csv"
-        self.catchment_path = f"{default_prefix}_cathcment.shp"
+        self.catchment_path = f"{default_prefix}_catchment.shp"
         self.src_path = f"{default_prefix}_src.csv"
         self.flood_stage_path = f"{default_prefix}_flood_stage.csv"
         self.fim_path = f"{default_prefix}_fim.tif"
