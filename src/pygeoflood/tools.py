@@ -1823,14 +1823,11 @@ def get_inun(hand, seg_catch, df):
 
 def get_c_hand(dem, gage_el, opix):
 
-    # initialize array with nan values
-    inun = np.full(dem.shape, np.nan, dtype=np.float32)
-
     # initial inun array: 0 if (DEM ≥ gage_el) else (gage_el - DEM)
     inun = np.where(dem >= (gage_el), 0, (gage_el) - dem)
 
-    # masked inun array: 255 if inun > 0 else 0
-    inun_mask = np.where(inun == 0, 0, 255)
+    # masked inun array: 255 if inun > 0 and not NaN else 0
+    inun_mask = np.where((inun > 0) & ~np.isnan(inun), 255, 0)
 
     # label connected regions of inundation
     regions = label(inun_mask)
