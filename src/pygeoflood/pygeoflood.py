@@ -2564,7 +2564,7 @@ class pyGeoFlood(object):
         files_exist = all(os.path.exists(path) for path in int_files)
         
         if not files_exist or overwrite_dephier:
-            print('Calculating depheir')
+            print('Calculating dephier')
             # Get a simple labels array indicating all the edge cells belong to the ocean
             labels = rd.get_new_depression_hierarchy_labels(dem.shape)
 
