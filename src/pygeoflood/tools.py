@@ -216,8 +216,9 @@ def read_raster(
     with rio.open(file_path) as ds:
         raster = ds.read(1)
         profile = ds.profile
-        msg = "Pixel width must be equal to pixel height"
-        assert abs(abs(ds.transform.a) - abs(ds.transform.e)) < 0.01, msg
+        msg = "Pixel width must be equal to pixel height (tolerance of 3%)"
+        pixel_w, pixel_h = abs(ds.transform.a), abs(ds.transform.e)
+        assert 0.97 <= pixel_w / pixel_h <= 1.03, msg
     # convert nodata to np.nan if dtype is float
     if "float" in profile["dtype"].lower():
         raster[raster == profile["nodata"]] = np.nan
