@@ -2671,6 +2671,9 @@ class pyGeoFlood(object):
 
         coastal_inun = t.get_c_hand(dem, gage_el, ocean_coords)
 
+        # set 0 and under values to nodata
+        coastal_inun[coastal_inun <= 0] = dem_profile['nodata']
+
         # set file path
         if custom_path is None:
             output_coastal_inundation_path = self.coastal_inundation_path    
