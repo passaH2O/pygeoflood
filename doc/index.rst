@@ -31,6 +31,14 @@ For the bleeding-edge version, install from GitHub:
 
    pip install git+https://github.com/passah2o/pygeoflood
 
+If you plan to estimate pluvial flooding, install this fork of richdem, which provides `Fill-Spill-Merge <https://doi.org/10.5194/esurf-9-105-2021>`_: 
+
+.. code-block:: bash
+
+   git clone https://github.com/mdp0023/richdem.git
+   cd richdem/wrappers/pyrichdem
+   pip install "setuptools<81" && pip install .
+
 Example workflows in python
 ###########################
 
