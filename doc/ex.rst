@@ -5,4 +5,4 @@ Example gallery
    examples/fim_workflow_combined
    examples/fim_workflow_indiv_steps
    examples/c_hand_example.ipynb
-   
+   examples/coast_pluv_fim.ipynb
