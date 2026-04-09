@@ -26,7 +26,8 @@ If you plan on running the Fill-Spill-Merge function to estimate pluvial floodin
 $ git clone https://github.com/mdp0023/richdem.git richdem
 $ cd richdem/wrappers/pyrichdem
 $ pip install "setuptools<81"
-$ pip install .
+$ pip install "numpy==2.3.5"
+$ pip install --no-deps .
 ```
 
 For local `pygeoflood` development, install in editable mode:
