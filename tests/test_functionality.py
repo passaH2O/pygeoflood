@@ -695,6 +695,9 @@ class TestPyGeoFlood(baseTestPyGeoFlood):
                                     'custom_path': custom_path,
                                     'expected_error': expected_error})
 
+    def test_ce_workflow(self, pgf):
+        self.validate_method(pgf.run_ce_workflow, "run_ce_workflow")
+
     def test_fim_workflow(self,pgf):
         self.validate_method(pgf.run_fim_workflow, "run_fim_workflow")
 

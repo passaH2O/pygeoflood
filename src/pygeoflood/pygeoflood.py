@@ -2690,6 +2690,27 @@ class pyGeoFlood(object):
         
 
     @t.time_it
+    def run_ce_workflow(self):
+        """
+        Run the pyGeoFlood workflow up to and including channel
+        extraction (extract_channel_network).
+        """
+        self.apply_nonlinear_filter()
+        self.calculate_slope()
+        self.calculate_curvature()
+        self.fill_depressions()
+        self.calculate_mfd_flow_accumulation()
+        self.calculate_d8_flow_direction()
+        self.find_outlets()
+        self.delineate_basins()
+        self.define_skeleton()
+        self.find_endpoints()
+        self.calculate_binary_hand()
+        if self.custom_flowline_path.is_file():
+            self.rasterize_custom_flowline()
+        self.extract_channel_network()
+
+    @t.time_it
     def run_fim_workflow(self):
         """
         Run the full pyGeoFlood workflow.
